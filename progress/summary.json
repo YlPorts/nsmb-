@@ -3,7 +3,7 @@
   "release": "A2DE",
   "measured_on": "2026-09-19",
   "scope": "Configured A2DE ARM9 code: main executable, autoloads and overlays",
-  "based_on_revision": "76daeb8e3b8587b62a26bc867a755f9166bb64ca",
+  "based_on_revision": "296e67f2f2328664a5b9a0120014dca25e582713",
   "toolchain": {
     "dsd": "0.12.0",
     "zig": "0.16.0",
@@ -11,8 +11,16 @@
     "mwccarm": "1.2/sp3 (2.0 build 84)",
     "runner": "wibo 1.2.0"
   },
-  "local_report_sha256": "27b77d1c6c8e63a556c0cdc599ae7f320cbed1dc665c5d22eba269ab84eae1c6",
+  "local_report_sha256": "2f889c493b8b692a3940ffa8cb68d5a861cae9d6584428ef1d765be3da762120",
   "measures": {
+    "matched_code": 124536,
+    "total_code": 2876454,
+    "matched_functions": 1465,
+    "total_functions": 15667,
+    "matched_data": 4276,
+    "total_data": 851344
+  },
+  "previous_measures": {
     "matched_code": 123816,
     "total_code": 2876454,
     "matched_functions": 1453,
@@ -20,16 +28,8 @@
     "matched_data": 4276,
     "total_data": 851344
   },
-  "previous_measures": {
-    "matched_code": 121032,
-    "total_code": 2876454,
-    "matched_functions": 1441,
-    "total_functions": 15667,
-    "matched_data": 4276,
-    "total_data": 851344
-  },
   "gain": {
-    "matching_code_bytes": 2784,
+    "matching_code_bytes": 720,
     "matching_functions": 12
   }
 }

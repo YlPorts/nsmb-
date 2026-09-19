@@ -63,10 +63,23 @@ All listed allocation sizes are enforced by active compile-time assertions. Mode
 | Object239 | ModelAnmEntity | `0x7E0` | 3 | 572 | 100.0000% |
 | Object242 | ModelAnmEntity | `0x5E8` | 3 | 260 | 39.9615%, 39.9615%, 39.9615%, 39.9615%, 39.9615%, 100.0000% |
 | Object250 | ModelEntity | `0x700` | 2 | 504 | 83.7544% |
-| Object258 | ModelEntity | `0xAA0` | 2 | 432 | 93.3333% |
+| Object258 | ModelEntity | `0xAA0` | 3 | 624 | 100.0000% |
 | Object259 | ModelAnmEntity | `0x708` | 3 | 452 | 100.0000% |
 | Object262 | StageEntity | `0x71C` | 3 | 588 | 100.0000% |
 | Object269 | StageEntity | `0x6F8` | 3 | 668 | 100.0000% |
 | Object301 | ModelAnmEntity | `0x4BC` | 3 | 120 | 100.0000% |
+| Object76 | StageEntity | `0xE28` | 1 | 48 | code 100%† |
+| Object249 | StageEntity | `0xA44` | 1 | 48 | code 100%† |
+| Object341 | StageEntity | `0x3318` | 1 | 48 | code 100%† |
+| Object342 | StageEntity | `0x3AF8` | 1 | 48 | code 100%† |
+| Object343 | StageEntity | `0x353C` | 1 | 48 | code 100%† |
+| Object344 | StageEntity | `0x41B8` | 1 | 48 | code 100%† |
+| Object348 | StageEntity | `0x3164` | 1 | 48 | code 100%† |
+| Object350 | StageEntity | `0x2EAC` | 1 | 48 | code 100%† |
+| Object354 | StageEntity | `0x2AE8` | 1 | 48 | code 100%† |
+| Object367 | StageEntity | `0x182C` | 1 | 48 | code 100%† |
+| Object368 | StageEntity | `0x67C` | 1 | 48 | code 100%† |
 
-Factories below 100% are explicitly not counted as matching. Their recovered layout can still allow the destructor variants to match exactly. Shared bases retain pending gameplay overrides; only the recorded function-level results are validated.
+† For these 11 allocation-only factories, ARM instruction bytes and function sizes match; the remaining objdiff fuzziness is only equivalent unresolved relocation labels for shared constructor/vtable targets. `Object258::create` is a full instruction-and-relocation match.
+
+Factories with genuine code differences below 100% are explicitly not counted as matching. Their recovered layout can still allow the destructor variants to match exactly. Shared bases retain pending gameplay overrides; only the recorded function-level results are validated.

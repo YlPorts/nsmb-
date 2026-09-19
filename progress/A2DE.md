@@ -13,10 +13,38 @@ Measured on 2026-09-19 using the supplied A2DE ROM, dsd 0.12.0, Zig 0.16.0, objd
 | Shared model bases, platform lists and 62 object layouts | 115,988 | 2,876,454 | 4.032326% | 1,418 / 15,667 |
 | Worldmap character/player-model completion | 121,032 | 2,876,454 | 4.207681% | 1,441 / 15,667 |
 | Worldmap camera code completion | 123,816 | 2,876,454 | 4.304467% | 1,453 / 15,667 |
+| Object258 grouped layout and 11 recovered allocation sizes | 124,536 | 2,876,454 | 4.329497% | 1,465 / 15,667 |
 
-**Cumulative gain: 43,360 matching code bytes and 503 matching functions.** The code-size and function-count denominators have not changed. No previously matching function was lost, checking each function's unit and original address.
+**Cumulative gain: 44,080 matching code bytes and 515 matching functions.** The code-size and function-count denominators have not changed. No previously matching function was lost, checking each function's unit and original address.
 
-## Latest verified changes — worldmap camera code pass
+## Latest verified changes — allocation/layout pass
+
+**4.329497% matching code**, up from 4.304467% at `296e67f`. This pass adds **12 matching functions / 720 matching code bytes**. The new total is **124,536 / 2,876,454 code bytes** and **1,465 / 15,667 functions**. Matching data remains **4,276 / 851,344 bytes**.
+
+| Area | New matching functions | New matching code bytes |
+| --- | ---: | ---: |
+| `Object258::create` after grouped `0x4A0` member recovery | 1 | 192 |
+| 11 factory allocation-size recoveries | 11 | 528 |
+
+- Recover `Object258`'s `0x4A0` region as one grouped subobject containing a `Vec3_32` and 62 `Vec2_32` entries. This restores the original field offsets and makes the 192-byte factory instruction stream and relocation references match exactly.
+- Recover original allocation sizes for `Object76`, `Object249`, `Object341`, `Object342`, `Object343`, `Object344`, `Object348`, `Object350`, `Object354`, `Object367` and `Object368`, with active compile-time size assertions.
+- For those 11 factories, the generated ARM code and function sizes match the reference. Remaining objdiff fuzziness is limited to equivalent unresolved relocation labels for the shared `StageEntity` constructor/vtable targets; the whole-project code-byte report counts the code as matching. No relocation is discarded when claiming `Object258`'s exact match.
+
+### Validation of this pass
+
+The complete local objdiff report reproduces **124,536 / 2,876,454 matching code bytes**, **1,465 / 15,667 matching functions**, and **4,276 / 851,344 matching data bytes**. The project-wide delta from the camera checkpoint is exactly **+720 bytes / +12 functions**, with no previously matching code or function lost. All translation units compile with the recovered sizes.
+
+```sh
+zig build delink -DRelease=A2DE
+zig build objdiff -DRelease=A2DE
+zig build all -DRelease=A2DE -j4
+build/bin/objdiff-cli report generate -o build/report.json
+python3 tools/update_progress.py --report build/report.json --check
+```
+
+These are ARM9 object-code comparisons against the supplied A2DE reference, **not a linked-ROM/gameplay-completion or native-port test**. No ROM or extracted original game binaries are published.
+
+## Previous verified changes — worldmap camera code pass
 
 **4.304467% matching code**, up from 4.207681% at `76daeb8`. This pass adds **12 matching functions / 2,784 matching code bytes**. The new total is **123,816 / 2,876,454 code bytes** and **1,453 / 15,667 functions**. Matching data remains **4,276 / 851,344 bytes**.
 

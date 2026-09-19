@@ -18,6 +18,7 @@ extern ActorProfile Object75_Profile;
 // MainProfileTable slot 76  |  ov079  |  profile @ 0x0217c1cc
 class Object76 : public StageEntity {
 public:
+	u8 _unrecovered_3f4[0xa34];
 	static void *create();
 	inline Object76() {};
 	inline ~Object76() {};
@@ -25,3 +26,5 @@ public:
 
 extern ActorProfile Object76_Profile;
 
+
+static_assert(sizeof(Object76) == 0xe28);

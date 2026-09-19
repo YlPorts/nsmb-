@@ -11,8 +11,11 @@ class Object258 : public ModelEntity {
 public:
 
 	// A2DE allocation/member layout; other methods remain incomplete.
-	Vec3_32 _4a0; /* 0x4A0 */
-	Vec2_32 _4b0[62]; /* 0x4B0 */
+	struct Unk4A0 {
+		Vec3_32 vec;
+		Vec2_32 points[62];
+	};
+	Unk4A0 _4a0; /* 0x4A0 */
 	u8 _unrecovered_798[0x194];
 	Model _92c; /* 0x92C */
 	u8 _unrecovered_9bc[0x8];
