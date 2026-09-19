@@ -1,0 +1,64 @@
+name: Recover verified A2DE lifecycle hooks
+
+on:
+  push:
+    branches: [main]
+    paths: ['tools/recover_lifecycle.py', '.github/workflows/recover-lifecycle.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: recover-lifecycle-main
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    if: github.repository == 'YlPorts/nsmb-'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Recover exact original lifecycle functions
+        run: |
+          mkdir -p build/ci-objects
+          python3 tools/recover_lifecycle.py --apply > build/ci-objects/recovery-changes.json
+          git diff --check
+      - name: Compile all game and library sources
+        run: python3 tools/compile_sources.py --prepare
+      - name: Verify complete ARM bytes of all 175 functions
+        run: |
+          python3 -m pip install pyelftools==0.32
+          python3 tools/recover_lifecycle.py --verify
+      - name: Commit only verified source changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -- src/Bases
+          if ! git diff --cached --quiet; then
+            count=$(python3 -c "import json; print(json.load(open('build/ci-objects/recovery-changes.json'))['reconstructed_functions'])")
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m "decomp: recover ${count} byte-verified A2DE lifecycle functions" -m 'All 175 listed lifecycle hooks pass exact ARM size, byte and relocation checks. Existing Object104/Object266 implementations are retained; related upstream contributions are credited to Ozero4 (PRs #15/#14). This is not a claim of full-game completion.'
+            git push origin HEAD:main
+          fi
+          python3 - <<'PY'
+          import json, pathlib, subprocess
+          p = pathlib.Path('build/ci-objects/compile-report.json')
+          report = json.loads(p.read_text())
+          report['commit'] = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          p.write_text(json.dumps(report, indent=2) + '\n')
+          PY
+      - name: Package exact source revision
+        if: always()
+        run: git archive --format=tar.gz HEAD -o build/ci-objects/source-snapshot.tar.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: A2DE-lifecycle-verified-objects
+          path: build/ci-objects/
+          if-no-files-found: error
+          retention-days: 7

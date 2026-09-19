@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    if: github.repository == 'NSMB-Decomp/nsmb' || vars.NSMB_ENABLE_SELF_HOSTED == 'true'
     runs-on: self-hosted
 
     strategy:
