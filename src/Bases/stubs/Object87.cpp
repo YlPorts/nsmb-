@@ -7,3 +7,8 @@ void *Object87::create()
 
 // 0x0216d284
 ActorProfile Object87_Profile = { Object87::create, 87, 110, NULL };
+
+s32 Object87::onRender()
+{
+	return 1;
+}

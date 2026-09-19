@@ -5,6 +5,7 @@
 // MainProfileTable slot 224  |  ov119  |  profile @ 0x0218e180
 class Object224 : public StageEntity {
 public:
+	void pendingDestroy();
 	static void *create();
 	inline Object224() {};
 	inline ~Object224() {};

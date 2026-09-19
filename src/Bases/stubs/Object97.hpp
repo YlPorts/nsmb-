@@ -5,6 +5,9 @@
 // MainProfileTable slot 97  |  ov017  |  profile @ 0x02133d08
 class Object97 : public StageEntity {
 public:
+	s32 onDestroy();
+	void pendingDestroy();
+	s32 onRender();
 	static void *create();
 	inline Object97() {};
 	inline ~Object97() {};

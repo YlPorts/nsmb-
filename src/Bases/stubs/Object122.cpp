@@ -7,3 +7,12 @@ void *Object122::create()
 
 // 0x02143c18
 ActorProfile Object122_Profile = { Object122::create, 122, 141, NULL /* TODO: 0x0214397c */ };
+
+void Object122::entityCollision()
+{
+}
+
+s32 Object122::onDestroy()
+{
+	return 1;
+}

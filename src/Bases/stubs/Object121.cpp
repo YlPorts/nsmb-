@@ -7,3 +7,11 @@ void *Object121::create()
 
 // 0x02170130
 ActorProfile Object121_Profile = { Object121::create, 121, 140, NULL /* TODO: 0x021634c8 */ };
+
+void Object121::pendingDestroy()
+{
+}
+
+void Object121::_21()
+{
+}

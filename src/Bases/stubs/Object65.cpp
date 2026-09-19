@@ -7,3 +7,11 @@ void *Object65::create()
 
 // 0x0213f928
 ActorProfile Object65_Profile = { Object65::create, 65, 79, NULL /* TODO: 0x0213effc */ };
+
+void Object65::_31()
+{
+}
+
+void Object65::pendingDestroy()
+{
+}

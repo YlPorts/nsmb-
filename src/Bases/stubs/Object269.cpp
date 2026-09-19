@@ -7,3 +7,11 @@ void *Object269::create()
 
 // 0x0217fcf0
 ActorProfile Object269_Profile = { Object269::create, 269, 103, NULL /* TODO: 0x0217f860 */ };
+
+void Object269::_11()
+{
+}
+
+void Object269::pendingDestroy()
+{
+}

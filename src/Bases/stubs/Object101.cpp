@@ -15,3 +15,7 @@ ActorProfile Object101_Profile = { Object101::create, 101, 229, NULL /* TODO: 0x
 
 // 0x0217b890
 ActorProfile Object102_Profile = { Object102::create, 102, 230, NULL /* TODO: 0x0217b554 */ };
+
+void Object101::pendingDestroy()
+{
+}

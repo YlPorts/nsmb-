@@ -24,3 +24,7 @@ bool FireSnake::loadResources() {
 	FS::Cache::loadFile(0x4fd, 0x0);
 	return true;
 }
+
+void FireSnake::_36()
+{
+}

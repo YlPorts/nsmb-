@@ -6,6 +6,8 @@
 // MainProfileTable slot 146  |  ov025  |  profile @ 0x02141ce4
 class Object146 : public StageEntity {
 public:
+	void _21();
+	void pendingDestroy();
 	ModelAnm _3f4;  // 0x3f4
 	u8 _pad0[0x10];
 	

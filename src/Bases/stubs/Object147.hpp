@@ -5,6 +5,8 @@
 // MainProfileTable slot 147  |  ov068  |  profile @ 0x021792c0
 class Object147 : public StageEntity {
 public:
+	s32 onDestroy();
+	void pendingDestroy();
 	static void *create();
 	inline Object147() {};
 	inline ~Object147() {};

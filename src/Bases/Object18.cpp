@@ -12,3 +12,7 @@ s32 Object18::onRender() {
 Object18::~Object18() {
 
 }
+
+void Object18::pendingDestroy()
+{
+}

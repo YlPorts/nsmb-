@@ -15,3 +15,15 @@ ActorProfile Object75_Profile = { Object75::create, 75, 87, NULL /* TODO: 0x0217
 
 // 0x0217c1cc
 ActorProfile Object76_Profile = { Object76::create, 76, 88, NULL /* TODO: 0x0217ba74 */ };
+
+void Object75::_23()
+{
+}
+
+void Object75::_21()
+{
+}
+
+void Object75::pendingDestroy()
+{
+}

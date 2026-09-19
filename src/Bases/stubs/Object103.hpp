@@ -6,6 +6,9 @@
 // MainProfileTable slot 103  |  ov121  |  profile @ 0x0218dfa8
 class Object103 : public StageEntity {
 public:
+	void _21();
+	s32 onDestroy();
+	void pendingDestroy();
 	Model _3f4;
 	u8 _pad0[0x24];
 	u8 _4a8; /* 0x4A8 */

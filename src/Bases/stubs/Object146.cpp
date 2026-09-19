@@ -7,3 +7,11 @@ void *Object146::create()
 
 // 0x02141ce4
 ActorProfile Object146_Profile = { Object146::create, 146, 169, NULL };
+
+void Object146::pendingDestroy()
+{
+}
+
+void Object146::_21()
+{
+}

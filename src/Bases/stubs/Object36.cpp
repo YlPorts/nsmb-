@@ -7,3 +7,7 @@ void *Object36::create()
 
 // 0x021320a0
 ActorProfile Object36_Profile = { Object36::create, 36, 49, NULL /* TODO: 0x02130864 */ };
+
+void Object36::pendingDestroy()
+{
+}

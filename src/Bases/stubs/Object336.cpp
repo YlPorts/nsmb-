@@ -7,3 +7,12 @@ void *Object336::create()
 
 // 0x02138d90
 ActorProfile Object336_Profile = { Object336::create, 336, 336, NULL };
+
+s32 Object336::onDestroy()
+{
+	return 1;
+}
+
+void Object336::pendingDestroy()
+{
+}

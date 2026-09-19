@@ -7,3 +7,11 @@ void *Object112::create()
 
 // 0x02148548
 ActorProfile Object112_Profile = { Object112::create, 112, 130, NULL /* TODO: 0x0214833c */ };
+
+void Object112::onStomped()
+{
+}
+
+void Object112::_21()
+{
+}

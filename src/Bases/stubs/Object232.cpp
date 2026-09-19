@@ -7,3 +7,7 @@ void *Object232::create()
 
 // 0x02189718
 ActorProfile Object232_Profile = { Object232::create, 232, 195, NULL /* TODO: 0x02187cf8 */ };
+
+void Object232::pendingDestroy()
+{
+}

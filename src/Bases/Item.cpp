@@ -15,3 +15,7 @@ ToadItem *ToadItem::create()
 {
 	return new ToadItem();
 }
+
+void Item::pendingDestroy()
+{
+}

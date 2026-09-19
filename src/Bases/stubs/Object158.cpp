@@ -15,3 +15,7 @@ ActorProfile Object159_Profile = { Object158::create2, 159, 187, NULL /* TODO: 0
 
 // 0x0216ff64
 ActorProfile Object158_Profile = { Object158::create, 158, 186, NULL /* TODO: 0x0216236c */ };
+
+void Object158::pendingDestroy()
+{
+}

@@ -7,6 +7,7 @@
 // MainProfileTable slot 54  |  ov068  |  profile @ 0x02179180
 class Object54 : public StageEntity {
 public:
+	void pendingDestroy();
 	ModelAnm _3f4;
 	Model _49c;
 	u8 _pad0[0x58];

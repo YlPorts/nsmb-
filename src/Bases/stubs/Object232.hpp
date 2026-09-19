@@ -5,6 +5,7 @@
 // MainProfileTable slot 232  |  ov098  |  profile @ 0x02189718
 class Object232 : public StageEntity {
 public:
+	void pendingDestroy();
 	static void *create();
 	inline Object232() {};
 	inline ~Object232() {};

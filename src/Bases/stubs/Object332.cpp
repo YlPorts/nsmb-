@@ -7,3 +7,8 @@ void *Object332::create()
 
 // 0x02138ce4
 ObjectProfile Object332_Profile = { Object332::create, 332, 332 };
+
+s32 Object332::onDestroy()
+{
+	return 1;
+}

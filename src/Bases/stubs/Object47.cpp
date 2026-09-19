@@ -15,3 +15,12 @@ ActorProfile Object48_Profile = { Object47::create2, 48, 62, NULL /* TODO: 0x021
 
 // 0x0218978c
 ActorProfile Object47_Profile = { Object47::create, 47, 61, NULL /* TODO: 0x02188a68 */ };
+
+void Object47::pendingDestroy()
+{
+}
+
+s32 Object47::onDestroy()
+{
+	return 1;
+}

@@ -5,6 +5,7 @@
 // MainProfileTable slot 153  |  ov071  |  profile @ 0x02179710
 class Object153 : public StageEntity {
 public:
+	bool onHeapCreated();
 	static void *create();
 	inline Object153() {};
 	inline ~Object153() {};

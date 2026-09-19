@@ -15,3 +15,7 @@ ActorProfile Object27_Profile = { Object27::create, 27, 38, NULL /* TODO: 0x0214
 
 // 0x02151fbc
 ActorProfile Object238_Profile = { Object238::create, 238, 39, NULL /* TODO: 0x0214a8b0 */ };
+
+void Object27::pendingDestroy()
+{
+}

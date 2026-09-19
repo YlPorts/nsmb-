@@ -7,3 +7,12 @@ void *Object96::create()
 
 // 0x02145200
 ActorProfile Object96_Profile = { Object96::create, 96, 244, NULL /* TODO: 0x02142fa8 */ };
+
+void Object96::pendingDestroy()
+{
+}
+
+s32 Object96::onDestroy()
+{
+	return 1;
+}

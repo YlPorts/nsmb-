@@ -7,3 +7,8 @@ void *Object330::create()
 
 // 0x02138f90
 ActorProfile Object330_Profile = { Object330::create, 330, 330, NULL };
+
+s32 Object330::onDestroy()
+{
+	return 1;
+}

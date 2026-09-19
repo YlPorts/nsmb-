@@ -7,3 +7,7 @@ void *Object73::create()
 
 // 0x02145388
 ActorProfile Object73_Profile = { Object73::create, 73, 85, NULL /* TODO: 0x02144ee8 */ };
+
+void Object73::_36()
+{
+}

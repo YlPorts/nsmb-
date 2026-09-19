@@ -7,3 +7,12 @@ void *Object77::create()
 
 // 0x021321ec
 ActorProfile Object77_Profile = { Object77::create, 77, 89, NULL /* TODO: 0x02130e9c */ };
+
+void Object77::pendingDestroy()
+{
+}
+
+s32 Object77::onDestroy()
+{
+	return 1;
+}

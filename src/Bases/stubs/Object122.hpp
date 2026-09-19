@@ -7,6 +7,8 @@
 // MainProfileTable slot 122  |  ov035  |  profile @ 0x02143c18
 class Object122 : public StageEntity {
 public:
+	s32 onDestroy();
+	void entityCollision();
 	ModelAnm _3f4;
 	Animation _49c;
 	u8 _pad0[0x14];

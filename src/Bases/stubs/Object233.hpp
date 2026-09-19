@@ -7,6 +7,7 @@
 // MainProfileTable slot 233  |  ov099  |  profile @ 0x02186370
 class Object233 : public StageEntity {
 public:
+	void pendingDestroy();
 	Collider _3f4;
 	u8 _pad1[0x2c];
 	Texture _480;

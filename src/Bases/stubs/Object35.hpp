@@ -6,6 +6,8 @@
 // MainProfileTable slot 35  |  ov042  |  profile @ 0x02152460
 class Object35 : public StageEntity {
 public:
+	s32 onDestroy();
+	void pendingDestroy();
 	ModelAnm _3f4;  // 0x3f4
 	u8 _pad0[0x20];
 	

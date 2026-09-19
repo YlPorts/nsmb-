@@ -7,3 +7,12 @@ void *Object312::create()
 
 // 0x020db0b0
 ActorProfile Object312_Profile = { Object312::create, 312, 303, NULL /* TODO: 0x020d8cb0 */ };
+
+s32 Object312::onDestroy()
+{
+	return 1;
+}
+
+void Object312::pendingDestroy()
+{
+}

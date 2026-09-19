@@ -5,6 +5,7 @@
 // MainProfileTable slot 315  |  ov004  |  profile @ 0x020ccd30
 class Object315 : public StageEntity {
 public:
+	s32 onDestroy();
 	static void *create();
 	inline Object315() {};
 	inline ~Object315() {};

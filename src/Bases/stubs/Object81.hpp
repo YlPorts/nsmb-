@@ -5,6 +5,8 @@
 // MainProfileTable slot 81  |  ov035  |  profile @ 0x02143af0
 class Object81 : public StageEntity {
 public:
+	void _21();
+	s32 onDestroy();
 	static void *create();
 	inline Object81() {};
 	inline ~Object81() {};

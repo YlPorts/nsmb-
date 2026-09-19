@@ -6,6 +6,7 @@
 class Item : public StageEntity
 {
       public:
+	void pendingDestroy();
 	u32 _3f4;
 	ModelAnm modelAnm;
 	Model model;

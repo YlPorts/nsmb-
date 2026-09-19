@@ -5,6 +5,7 @@
 // MainProfileTable slot 36  |  ov012  |  profile @ 0x021320a0
 class Object36 : public StageEntity {
 public:
+	void pendingDestroy();
 	static void *create();
 	inline Object36() {};
 	inline ~Object36() {};

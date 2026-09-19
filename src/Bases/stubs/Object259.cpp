@@ -7,3 +7,11 @@ void *Object259::create()
 
 // 0x02178438
 ActorProfile Object259_Profile = { Object259::create, 259, 144, NULL /* TODO: 0x021780e4 */ };
+
+void Object259::_30()
+{
+}
+
+void Object259::_23()
+{
+}

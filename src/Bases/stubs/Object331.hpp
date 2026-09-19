@@ -5,6 +5,7 @@
 // MainProfileTable slot 331  |  ov130  |  profile @ 0x02138c20
 class Object331 : public MGScene {
 public:
+	s32 onDestroy();
 	static void *create();
 	inline Object331() {};
 	inline ~Object331() {};

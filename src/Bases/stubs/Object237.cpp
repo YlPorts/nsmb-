@@ -7,3 +7,15 @@ void *Object237::create()
 
 // 0x0216d154
 ActorProfile Object237_Profile = { Object237::create, 237, 50, NULL /* TODO: 0x02155e80 */ };
+
+void Object237::_36()
+{
+}
+
+void Object237::_37()
+{
+}
+
+void Object237::_15()
+{
+}

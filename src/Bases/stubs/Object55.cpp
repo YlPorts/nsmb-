@@ -15,3 +15,12 @@ ActorProfile Object55_Profile = { Object55::create, 55, 69, NULL /* TODO: 0x0213
 
 // 0x0213f45c
 ActorProfile Object56_Profile = { Object56::create, 56, 70, NULL /* TODO: 0x0213d768 */ };
+
+void Object55::onStomped()
+{
+}
+
+s32 Object55::onDestroy()
+{
+	return 1;
+}

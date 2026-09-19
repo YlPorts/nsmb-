@@ -777,3 +777,7 @@ bool StageEntity::func_ov000_0209ff98() {
 	return false;
 
 }
+
+void StageEntity::onStomped()
+{
+}

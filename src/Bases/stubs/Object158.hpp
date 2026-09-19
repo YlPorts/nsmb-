@@ -6,6 +6,7 @@
 // ov054  |  vtable @ 0x0216ff70
 class Object158 : public StageEntity {
 public:
+	void pendingDestroy();
 	static void *create();
 	static void *create2();
 	inline Object158() {};

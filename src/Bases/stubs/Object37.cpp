@@ -15,3 +15,8 @@ ActorProfile Object37_Profile = { Object37::create, 37, 51, NULL /* TODO: 0x0213
 
 // 0x0213f6dc
 ActorProfile Object38_Profile = { Object38::create, 38, 52, NULL /* TODO: 0x0213e364 */ };
+
+s32 Object37::onDestroy()
+{
+	return 1;
+}

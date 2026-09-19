@@ -6,6 +6,7 @@
 class FireSnake : public StageEntity
 {
 public:
+	void _36();
 	Model _484;
 	Model _514;
 	Animation _a0;

@@ -5,6 +5,7 @@
 // MainProfileTable slot 94  |  ov010  |  profile @ 0x021261b4
 class Object94 : public StageEntity {
 public:
+	void pendingDestroy();
 	static void *create();
 	inline Object94() {};
 	inline ~Object94() {};

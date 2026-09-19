@@ -5,6 +5,7 @@
 // MainProfileTable slot 120  |  ov108  |  profile @ 0x0218aef0
 class Object120 : public StageEntity {
 public:
+	void _36();
 	static void *create();
 	inline Object120() {};
 	inline ~Object120() {};

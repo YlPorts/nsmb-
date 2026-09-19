@@ -7,3 +7,8 @@ void *Object153::create()
 
 // 0x02179710
 ActorProfile Object153_Profile = { Object153::create, 153, 177, NULL /* TODO: 0x02178334 */ };
+
+bool Object153::onHeapCreated()
+{
+	return true;
+}

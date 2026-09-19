@@ -7,3 +7,8 @@ void *Object276::create()
 
 // 0x02124b84
 ActorProfile Object276_Profile = { Object276::create, 276, 284, NULL };
+
+s32 Object276::onUpdate()
+{
+	return 1;
+}

@@ -7,3 +7,8 @@ void *Object29::create()
 
 // 0x02176770
 ActorProfile Object29_Profile = { Object29::create, 29, 41, NULL /* TODO: 0x021765f0 */ };
+
+s32 Object29::onDestroy()
+{
+	return 1;
+}
