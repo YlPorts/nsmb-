@@ -1780,7 +1780,7 @@ from:0x020dbaac kind:arm_call to:0x02009cb4 module:main
 from:0x020dbac8 kind:arm_call to:0x02019530 module:main
 from:0x020dbae0 kind:load to:0x02088bdc module:autoload(3)
 from:0x020dbae4 kind:load to:0x020e98d8 module:overlay(8)
-from:0x020dbae8 kind:load to:0x020e98dc module:overlay(8)
+from:0x020dbae8 kind:load to:0x020e98d8 add:0x4 module:overlay(8)
 from:0x020dbb4c kind:arm_call to:0x02019440 module:main
 from:0x020dbbc0 kind:arm_call to:0x02019440 module:main
 from:0x020dbbe0 kind:arm_call to:0x0201fe88 module:main

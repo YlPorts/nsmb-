@@ -11,10 +11,42 @@ Measured on 2026-09-19 using the supplied A2DE ROM, dsd 0.12.0, Zig 0.16.0, objd
 | Object layouts, vectors and sound-test update (262f343) | 87,612 | 2,876,454 | 3.045834% | 1,184 / 15,667 |
 | Collision, movement and minigame lifecycle reconstruction (4d786f3) | 91,704 | 2,876,454 | 3.188092% | 1,223 / 15,667 |
 | Shared model bases, platform lists and 62 object layouts | 115,988 | 2,876,454 | 4.032326% | 1,418 / 15,667 |
+| Worldmap character/player-model completion | 121,032 | 2,876,454 | 4.207681% | 1,441 / 15,667 |
 
-**Cumulative gain: 35,532 matching code bytes and 468 matching functions.** The code-size and function-count denominators have not changed. No previously matching function was lost, checking each function's unit, original address, and explicit symbol-rename mapping (including aliases and separate sections).
+**Cumulative gain: 40,576 matching code bytes and 491 matching functions.** The code-size and function-count denominators have not changed. No previously matching function was lost, checking each function's unit and original address.
 
-## Latest verified changes — large layout/platform pass
+## Latest verified changes — worldmap character/player-model pass
+
+**4.207681% matching code**, up from 4.032326% at `a2945ad`. This pass adds **23 matching functions / 5,044 matching code bytes**. All 1,418 previously matching functions remain matching. Matching data increases by **248 bytes**, from 4,028 to 4,276, while all measurement denominators stay unchanged.
+
+| Area | New matching functions | New matching code bytes |
+| --- | ---: | ---: |
+| WmCharacter, including static initializer/constructor sections | 21 | 2,916 |
+| WmPlayerModel render/resource loading | 2 | 2,128 |
+
+- Reconstruct `WmCharacter` task dispatch, update/render hooks, resource creation, creation/destruction, and static task/profile/resource data.
+- Move its real `.init` and `.ctor` sections out of generated gaps while preserving relocation effective target addresses.
+- Complete `WmPlayerModel::render` and `WmPlayerModel::loadResources`, and correct `WmPlayerModel::update` to the original `u32` parameter width.
+- Correct `ModelAnm::create` from C++ `bool` to Nitro `BOOL`. The ModelAnm unit remains 100% matching, while the corrected return type restores the original return normalization in WmCharacter resource creation.
+- Mark WmCharacter, WmEntityModel and WmPlayerModel complete only after every configured code/data section in those units reaches 100% matching.
+
+### Validation of this pass
+
+The full source build completes successfully. The complete local objdiff report reproduces **121,032 / 2,876,454 matching code bytes**, **1,441 / 15,667 matching functions**, and **4,276 / 851,344 matching data bytes**. WmCharacter, WmEntityModel, WmPlayerModel and ModelAnm each report 100% matching code.
+
+A regression check keyed by unit and original function address verifies that all **1,418 functions that matched at the preceding checkpoint still match at 100%** after this pass.
+
+```sh
+zig build delink -DRelease=A2DE
+zig build all -DRelease=A2DE -j4
+zig build objdiff -DRelease=A2DE
+build/bin/objdiff-cli report generate -o build/report-final.json
+python3 tools/update_progress.py --check
+```
+
+These are ARM9 object-code comparisons against the supplied A2DE reference, **not a linked-ROM/gameplay-completion, rendering/audio or native-port test**. No ROM or extracted original game binaries are published.
+
+## Previous verified changes — large layout/platform pass
 
 **4.032326% matching code**, up from 3.188092% at `4d786f3`. This pass adds **195 matching functions / 24,284 matching code bytes**. All 1,223 previously matching functions remain matching. Code, data and function-count denominators are unchanged.
 

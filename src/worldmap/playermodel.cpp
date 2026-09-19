@@ -1,8 +1,21 @@
 #include "playermodel.hpp"
 #include "../AAA.hpp"
 
+// A2DE packed filesystem IDs recovered from the original overlay.
 enum {
-	pl_map_file_id = 1894 - 131
+	pl_map_file_id = 0x000006E3,
+	mario_model_file_id = 0xC52C06DC,
+	mario_head_cap_file_id = 0xC52A06D9,
+	mario_head_nocap_file_id = 0xC52B06DA,
+	mario_deadhead_file_id = 0xC52806D7,
+	mario_deadhead_n_file_id = 0xC52906D8,
+	luigi_model_file_id = 0xC52606D6,
+	luigi_head_cap_file_id = 0xC52406D3,
+	luigi_head_nocap_file_id = 0xC52506D4,
+	luigi_deadhead_file_id = 0xC52206D1,
+	luigi_deadhead_n_file_id = 0xC52306D2,
+	mario_player_file_id = 0xC52706DB,
+	luigi_player_file_id = 0xC52006D5,
 };
 
 enum pl_map {
@@ -102,10 +115,17 @@ bool WmPlayerModel::create(u8 playerID, u8 powerup, u32 animID) {
 }
 
 void WmPlayerModel::render(Mat4x3* mtx, Vec3_32* scale) {
+	if (powerup == P_Shell) {
+		model.flags |= F_RenderShell;
+	} else {
+		model.flags &= ~F_RenderShell;
+	}
 
+	model.render(*mtx, *scale, config->paletteID, FALSE,
+		data_ov000_020caa30, data_ov000_020caa2c, FALSE);
 }
 
-void WmPlayerModel::update(u8 moveState) {
+void WmPlayerModel::update(u32 moveState) {
 
 	if (moveState == 0)
 		model.update();
@@ -181,5 +201,173 @@ void WmPlayerModel::initHead(u32 animID) {
 
 
 bool WmPlayerModel::loadResources() {
-	return false;
+	void* modelFile = FS::Cache::loadFile(
+		mario_model_file_id, true);
+	Ns3dModelList* modelList = Ns_3dGetModelList(scast<Ns3dFileHeader*>(modelFile));
+
+	Ns3dModelData* modelData = Ns_3dGetModel(modelList, 0);
+	Ns3dMaterialList* matList = Ns_3dGetMaterials(modelData);
+	Ns3dMaterialData* matData = Ns_3dGetMaterial(matList, 0);
+	u32 i;
+	Game::setPlayerPaletteParams(0, matData->paletteParam);
+	Game::setPlayerTextureParams(0, matData->textureParam);
+
+	modelData = Ns_3dGetModel(modelList, 1);
+	matList = Ns_3dGetMaterials(modelData);
+	matData = Ns_3dGetMaterial(matList, 0);
+	Game::setPlayerPaletteParams(1, matData->paletteParam);
+	Game::setPlayerTextureParams(1, matData->textureParam);
+
+	modelFile = FS::Cache::loadFile(
+		mario_head_cap_file_id, true);
+	modelList = Ns_3dGetModelList(scast<Ns3dFileHeader*>(modelFile));
+
+	modelData = Ns_3dGetModel(modelList, 0);
+	matList = Ns_3dGetMaterials(modelData);
+	matData = Ns_3dGetMaterial(matList, 1);
+	Game::setPlayerPaletteParams(2, matData->paletteParam);
+	for (i = 0; i < matList->dict.itemCount; i++) {
+		matData = Ns_3dGetMaterial(matList, i);
+		Game::setPlayerTextureParams(i + 2, matData->textureParam);
+	}
+
+	modelData = Ns_3dGetModel(modelList, 1);
+	matList = Ns_3dGetMaterials(modelData);
+	matData = Ns_3dGetMaterial(matList, 1);
+	Game::setPlayerPaletteParams(3, matData->paletteParam);
+	for (i = 0; i < matList->dict.itemCount; i++) {
+		matData = Ns_3dGetMaterial(matList, i);
+		Game::setPlayerTextureParams(i + 4, matData->textureParam);
+	}
+
+	modelFile = FS::Cache::loadFile(
+		mario_head_nocap_file_id, true);
+	modelList = Ns_3dGetModelList(scast<Ns3dFileHeader*>(modelFile));
+
+	modelData = Ns_3dGetModel(modelList, 0);
+	matList = Ns_3dGetMaterials(modelData);
+	for (i = 0; i < matList->dict.itemCount; i++) {
+		matData = Ns_3dGetMaterial(matList, i);
+		Game::setPlayerTextureParams(i + 6, matData->textureParam);
+	}
+
+	modelData = Ns_3dGetModel(modelList, 1);
+	matList = Ns_3dGetMaterials(modelData);
+	for (i = 0; i < matList->dict.itemCount; i++) {
+		matData = Ns_3dGetMaterial(matList, i);
+		Game::setPlayerTextureParams(i + 8, matData->textureParam);
+	}
+
+	modelFile = FS::Cache::loadFile(
+		mario_deadhead_file_id, true);
+	modelList = Ns_3dGetModelList(scast<Ns3dFileHeader*>(modelFile));
+
+	modelData = Ns_3dGetModel(modelList, 0);
+	matList = Ns_3dGetMaterials(modelData);
+	matData = Ns_3dGetMaterial(matList, 1);
+	Game::setPlayerPaletteParams(4, matData->paletteParam);
+	for (i = 0; i < matList->dict.itemCount; i++) {
+		matData = Ns_3dGetMaterial(matList, i);
+		Game::setPlayerTextureParams(i + 10, matData->textureParam);
+	}
+
+	modelFile = FS::Cache::loadFile(
+		mario_deadhead_n_file_id, true);
+	modelList = Ns_3dGetModelList(scast<Ns3dFileHeader*>(modelFile));
+
+	modelData = Ns_3dGetModel(modelList, 0);
+	matList = Ns_3dGetMaterials(modelData);
+	for (i = 0; i < matList->dict.itemCount; i++) {
+		matData = Ns_3dGetMaterial(matList, i);
+		Game::setPlayerTextureParams(i + 14, matData->textureParam);
+	}
+
+	modelFile = FS::Cache::loadFile(
+		luigi_model_file_id, true);
+	modelList = Ns_3dGetModelList(scast<Ns3dFileHeader*>(modelFile));
+
+	modelData = Ns_3dGetModel(modelList, 0);
+	matList = Ns_3dGetMaterials(modelData);
+	matData = Ns_3dGetMaterial(matList, 0);
+	Game::setPlayerPaletteParams(6, matData->paletteParam);
+	Game::setPlayerTextureParams(16, matData->textureParam);
+
+	modelData = Ns_3dGetModel(modelList, 1);
+	matList = Ns_3dGetMaterials(modelData);
+	matData = Ns_3dGetMaterial(matList, 0);
+	Game::setPlayerPaletteParams(7, matData->paletteParam);
+	Game::setPlayerTextureParams(17, matData->textureParam);
+
+	modelFile = FS::Cache::loadFile(
+		luigi_head_cap_file_id, true);
+	modelList = Ns_3dGetModelList(scast<Ns3dFileHeader*>(modelFile));
+
+	modelData = Ns_3dGetModel(modelList, 0);
+	matList = Ns_3dGetMaterials(modelData);
+	matData = Ns_3dGetMaterial(matList, 1);
+	Game::setPlayerPaletteParams(8, matData->paletteParam);
+	for (i = 0; i < matList->dict.itemCount; i++) {
+		matData = Ns_3dGetMaterial(matList, i);
+		Game::setPlayerTextureParams(i + 18, matData->textureParam);
+	}
+
+	modelData = Ns_3dGetModel(modelList, 1);
+	matList = Ns_3dGetMaterials(modelData);
+	matData = Ns_3dGetMaterial(matList, 1);
+	Game::setPlayerPaletteParams(9, matData->paletteParam);
+	for (i = 0; i < matList->dict.itemCount; i++) {
+		matData = Ns_3dGetMaterial(matList, i);
+		Game::setPlayerTextureParams(i + 20, matData->textureParam);
+	}
+
+	FS::Cache::loadFile(
+		luigi_head_nocap_file_id, true);
+
+	modelData = Ns_3dGetModel(modelList, 0);
+	matList = Ns_3dGetMaterials(modelData);
+	for (i = 0; i < matList->dict.itemCount; i++) {
+		matData = Ns_3dGetMaterial(matList, i);
+		Game::setPlayerTextureParams(i + 22, matData->textureParam);
+	}
+
+	modelData = Ns_3dGetModel(modelList, 1);
+	matList = Ns_3dGetMaterials(modelData);
+	for (i = 0; i < matList->dict.itemCount; i++) {
+		matData = Ns_3dGetMaterial(matList, i);
+		Game::setPlayerTextureParams(i + 24, matData->textureParam);
+	}
+
+	modelFile = FS::Cache::loadFile(
+		luigi_deadhead_file_id, true);
+	modelList = Ns_3dGetModelList(scast<Ns3dFileHeader*>(modelFile));
+
+	modelData = Ns_3dGetModel(modelList, 0);
+	matList = Ns_3dGetMaterials(modelData);
+	matData = Ns_3dGetMaterial(matList, 1);
+	Game::setPlayerPaletteParams(10, matData->paletteParam);
+	for (i = 0; i < matList->dict.itemCount; i++) {
+		matData = Ns_3dGetMaterial(matList, i);
+		Game::setPlayerTextureParams(i + 26, matData->textureParam);
+	}
+
+	modelFile = FS::Cache::loadFile(
+		luigi_deadhead_n_file_id, true);
+	modelList = Ns_3dGetModelList(scast<Ns3dFileHeader*>(modelFile));
+
+	modelData = Ns_3dGetModel(modelList, 0);
+	matList = Ns_3dGetMaterials(modelData);
+	for (i = 0; i < matList->dict.itemCount; i++) {
+		matData = Ns_3dGetMaterial(matList, i);
+		Game::setPlayerTextureParams(i + 30, matData->textureParam);
+	}
+
+	FS::Cache::loadFile(pl_map_file_id, true);
+	FS::Cache::loadFile(
+		mario_player_file_id, true);
+	FS::Cache::loadFile(
+		luigi_player_file_id, true);
+
+	PlayerCap::loadResources();
+	PlayerShell::loadResources();
+	return true;
 }

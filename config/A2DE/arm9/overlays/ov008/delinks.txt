@@ -37,11 +37,15 @@ src/worldmap/controller.cpp:
     .bss        start:0x020ee624 end:0x020ee79c
 
 src/worldmap/character.cpp:
+    complete
     .text       start:0x020db204 end:0x020dbc88
+    .init       start:0x020e53ec end:0x020e54cc
+    .ctor       start:0x020e57f8 end:0x020e57fc
     .data       start:0x020e988c end:0x020e9940
     .bss        start:0x020ee79c end:0x020ee7dc
 
 src/worldmap/entitymodel.cpp:
+    complete
     .text       start:0x020dbc88 end:0x020dc1f8
     .data       start:0x020e9940 end:0x020e9960
     .bss        start:0x020ee7dc end:0x020ee7f8
@@ -53,6 +57,7 @@ src/worldmap/minimap.cpp:
     .bss        start:0x020ee7f8 end:0x020ee888
 
 src/worldmap/playermodel.cpp:
+    complete
     .text       start:0x020dd21c end:0x020ddd74
     .rodata     start:0x020e3fec end:0x020e40a0
     .data       start:0x020e9b68 end:0x020e9b78
