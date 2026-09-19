@@ -12,39 +12,50 @@ Measured on 2026-09-19 using the supplied A2DE ROM, dsd 0.12.0, Zig 0.16.0, objd
 | Collision, movement and minigame lifecycle reconstruction (4d786f3) | 91,704 | 2,876,454 | 3.188092% | 1,223 / 15,667 |
 | Shared model bases, platform lists and 62 object layouts | 115,988 | 2,876,454 | 4.032326% | 1,418 / 15,667 |
 | Worldmap character/player-model completion | 121,032 | 2,876,454 | 4.207681% | 1,441 / 15,667 |
+| Worldmap camera code completion | 123,816 | 2,876,454 | 4.304467% | 1,453 / 15,667 |
 
-**Cumulative gain: 40,576 matching code bytes and 491 matching functions.** The code-size and function-count denominators have not changed. No previously matching function was lost, checking each function's unit and original address.
+**Cumulative gain: 43,360 matching code bytes and 503 matching functions.** The code-size and function-count denominators have not changed. No previously matching function was lost, checking each function's unit and original address.
 
-## Latest verified changes — worldmap character/player-model pass
+## Latest verified changes — worldmap camera code pass
 
-**4.207681% matching code**, up from 4.032326% at `a2945ad`. This pass adds **23 matching functions / 5,044 matching code bytes**. All 1,418 previously matching functions remain matching. Matching data increases by **248 bytes**, from 4,028 to 4,276, while all measurement denominators stay unchanged.
+**4.304467% matching code**, up from 4.207681% at `76daeb8`. This pass adds **12 matching functions / 2,784 matching code bytes**. The new total is **123,816 / 2,876,454 code bytes** and **1,453 / 15,667 functions**. Matching data remains **4,276 / 851,344 bytes**.
+
+| Area | New matching functions | New matching code bytes |
+| --- | ---: | ---: |
+| WorldMapCamera lifecycle, task state, update/render/create and factory | 12 | 2,784 |
+
+- Reconstruct the full configured `WorldMapCamera` code range: destructors, task dispatch/state transitions, FOV interpolation, camera update, view rendering, creation and allocation helper.
+- Recover the `View` matrix initialization used by the original constructor path and the `Vec3_32` base-pointer conversion needed for the original ARM code generation.
+- Recover the `WorldMapCamera`, `PerspView` and `View` symbol boundaries and equivalent relocation addends without changing effective target addresses.
+- Keep the camera unit marked incomplete because its configured data range is not yet 100% matching; this checkpoint claims **100% camera code**, not 100% camera data.
+
+### Validation of this pass
+
+The complete local objdiff report reproduces **123,816 / 2,876,454 matching code bytes**, **1,453 / 15,667 matching functions**, and **4,276 / 851,344 matching data bytes**. `src/worldmap/camera` reports **2,784 / 2,784 matching code bytes and 12 / 12 matching functions**.
+
+The project-wide gain is exactly the camera gain (+12 functions / +2,784 bytes), so no previously matching function or code byte was lost. Every recovered camera function also reproduces the original instruction stream after relocation normalization, including matching relocation count/offset/type/addend structure.
+
+```sh
+zig build delink -DRelease=A2DE
+zig build objdiff -DRelease=A2DE
+zig build all -DRelease=A2DE -j4
+build/bin/objdiff-cli report generate -o build/report.json
+python3 tools/update_progress.py --report build/report.json --check
+```
+
+These are ARM9 object-code comparisons against the supplied A2DE reference, **not a linked-ROM/gameplay-completion, rendering/audio or native-port test**. No ROM or extracted original game binaries are published.
+
+## Previous verified changes — worldmap character/player-model pass
+
+**4.207681% matching code**, up from 4.032326% at `a2945ad`. This pass added **23 matching functions / 5,044 matching code bytes**. All 1,418 functions matching at the preceding checkpoint remained matching. Matching data increased by **248 bytes**, from 4,028 to 4,276.
 
 | Area | New matching functions | New matching code bytes |
 | --- | ---: | ---: |
 | WmCharacter, including static initializer/constructor sections | 21 | 2,916 |
 | WmPlayerModel render/resource loading | 2 | 2,128 |
 
-- Reconstruct `WmCharacter` task dispatch, update/render hooks, resource creation, creation/destruction, and static task/profile/resource data.
-- Move its real `.init` and `.ctor` sections out of generated gaps while preserving relocation effective target addresses.
-- Complete `WmPlayerModel::render` and `WmPlayerModel::loadResources`, and correct `WmPlayerModel::update` to the original `u32` parameter width.
-- Correct `ModelAnm::create` from C++ `bool` to Nitro `BOOL`. The ModelAnm unit remains 100% matching, while the corrected return type restores the original return normalization in WmCharacter resource creation.
-- Mark WmCharacter, WmEntityModel and WmPlayerModel complete only after every configured code/data section in those units reaches 100% matching.
-
-### Validation of this pass
-
-The full source build completes successfully. The complete local objdiff report reproduces **121,032 / 2,876,454 matching code bytes**, **1,441 / 15,667 matching functions**, and **4,276 / 851,344 matching data bytes**. WmCharacter, WmEntityModel, WmPlayerModel and ModelAnm each report 100% matching code.
-
-A regression check keyed by unit and original function address verifies that all **1,418 functions that matched at the preceding checkpoint still match at 100%** after this pass.
-
-```sh
-zig build delink -DRelease=A2DE
-zig build all -DRelease=A2DE -j4
-zig build objdiff -DRelease=A2DE
-build/bin/objdiff-cli report generate -o build/report-final.json
-python3 tools/update_progress.py --check
-```
-
-These are ARM9 object-code comparisons against the supplied A2DE reference, **not a linked-ROM/gameplay-completion, rendering/audio or native-port test**. No ROM or extracted original game binaries are published.
+- Reconstructed `WmCharacter` task dispatch, update/render hooks, resource creation, creation/destruction, and static task/profile/resource data.
+- Completed `WmPlayerModel::render` and `WmPlayerModel::loadResources`, corrected the update parameter width, and corrected `ModelAnm::create` from C++ `bool` to Nitro `BOOL`.
 
 ## Previous verified changes — large layout/platform pass
 

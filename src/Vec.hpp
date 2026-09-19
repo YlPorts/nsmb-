@@ -18,6 +18,11 @@ struct Vec3_32 : public Vec3_32s {
 	virtual inline ~Vec3_32() {};
 #endif
 
+	inline operator Vec3_32s *()
+	{
+		return this;
+	}
+
 	// operator Vec3_32s *()
 	// {
 	// 	return (Vec3_32s *)(((u32)this) + 4);

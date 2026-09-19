@@ -193,7 +193,12 @@ namespace WM {
 		ST_CourseLeft = 0x80,
 	};
 
+	enum WorldFlag {
+		WF_Bit2 = 1 << 2,
+	};
+
 	extern u32 state;
+	extern u32 wxFlags;
 
 	extern u16 entityPlttOfsTbl[ET_MAX];
 
