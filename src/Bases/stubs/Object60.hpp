@@ -15,7 +15,7 @@ public:
 	inline Object60() {};
 	inline ~Object60() {};
 };
-NTR_SIZE_GUARD(Object60, 0x440);
+static_assert(sizeof(Object60) == 0x440);
 
 extern ActorProfile Object60_Profile;
 

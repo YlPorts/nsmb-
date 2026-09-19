@@ -25,7 +25,7 @@ public:
 	inline Object155() {};
 	inline ~Object155() {};
 };
-NTR_SIZE_GUARD(Object155, 0x5A0);
+static_assert(sizeof(Object155) == 0x5A0);
 
 extern ActorProfile Object155_Profile;
 

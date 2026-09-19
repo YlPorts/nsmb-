@@ -1,6 +1,17 @@
 #include "StageEntity.hpp"
 #include "Player/PlayerActor.hpp"
 
+extern "C" u32 func_ov000_020a915c(CollisionMgr *, i32 *, u32);
+extern "C" u32 func_ov000_020a917c(CollisionMgr *);
+extern "C" u32 func_ov000_020a8140(CollisionMgr *);
+extern "C" bool func_ov000_020aa990(CollisionMgr *, u32);
+extern "C" u32 func_ov000_020a6d18(i32, i32);
+extern "C" void func_020221d8(Vec3_32 *);
+extern s8 data_ov000_020c4ec4[2];
+extern u32 data_02085a7c;
+extern u8 data_ov000_020cace0[2];
+extern i32 data_ov000_020cae0c[2];
+
 StageEntity::StageEntity()
 {
 	// this->_40 = 0x2;
@@ -512,6 +523,19 @@ void StageEntity::damageEntityCallback(ActiveCollider *collider)
 
 void StageEntity::updateBounce(i32 a, i32 b, i32 c)
 {
+	if ((collisionMgr._rawr & 0x1f40) == 0)
+		return;
+	if (b < 0x1000) {
+		velocity.x = ((i64)velocity.x * b + 0x800) >> 12;
+		if ((velocity.x < 0 ? -velocity.x : velocity.x) < 0x100)
+			velocity.x = 0;
+	}
+	if (velocity.y < 0) {
+		velocity.y = -velocity.y;
+		velocity.y = ((i64)velocity.y * c + 0x800) >> 12;
+		if (velocity.y < a)
+			velocity.y = 0;
+	}
 }
 
 void StageEntity::destroy(bool permanent)
@@ -589,6 +613,12 @@ void StageEntity::applyFireballWiggle()
 
 bool StageEntity::rotateToTarget(i16 a[2], i16 b[2])
 {
+	rotation.y += b[direction];
+	if (a[0] <= rotation.y || rotation.y <= a[1]) {
+		rotation.y = a[direction];
+		return true;
+	}
+	return false;
 }
 
 bool StageEntity::checkPlayersInOffset(i32 x)
@@ -601,10 +631,31 @@ bool StageEntity::checkPlayersInOffset(i32 x, i32 y)
 
 u32 StageEntity::updateCollisionSensors()
 {
+	u32 result = 0;
+	u32 bottom = updateBottomSensors();
+	if (collisionMgr._rawr & 0x1f40) {
+		velocity.y = 0;
+		result |= 1;
+	}
+	if (func_ov000_020aa990(&collisionMgr, bottom))
+		result |= 2;
+	if (updateSideSensors())
+		result |= 4;
+	return result;
 }
 
 bool StageEntity::checkLavaCollision(Vec3_32 *pos)
 {
+	bool collided = false;
+	if (func_ov000_020a6d18(pos->x, pos->y) == 0x10000004) {
+		collided = true;
+	} else if (data_ov000_020cace0[data_02085a7c] == 2 &&
+	           data_ov000_020cae0c[data_02085a7c] >= pos->y) {
+		collided = true;
+	}
+	if (collided)
+		func_020221d8(pos);
+	return collided;
 }
 
 
@@ -616,18 +667,50 @@ void StageEntity::_38() {
 
 u32 StageEntity::updateBottomSensors()
 {
+	_3ea = 0;
+	_3eb = 0;
+	u32 result = func_ov000_020a917c(&collisionMgr);
+	if (collisionMgr._rawr & 0x1f40) {
+		if (func_ov000_020a8140(&collisionMgr) == 0x3000)
+			_3ea = 1;
+		if (func_ov000_020a8140(&collisionMgr) == 0x1000)
+			_3eb = 1;
+		Vec3_32 *contact = &collisionMgr._54;
+		_31c = *contact;
+	} else {
+		_31c.x = 0;
+		_31c.y = 0;
+		_31c.z = 0;
+	}
+	return result;
 }
 
 u32 StageEntity::updateSideSensors()
 {
+	u8 side = ((u32)(position.x - collisionMgr._68) & 0x80000000) >> 31;
+	i32 direction = data_ov000_020c4ec4[side];
+	u32 result = func_ov000_020a915c(&collisionMgr, &direction, 0);
+	direction = data_ov000_020c4ec4[(u8)(side ^ 1)];
+	func_ov000_020a915c(&collisionMgr, &direction, 0x40000000);
+	if (_2bf & 3)
+		func_ov000_020a915c(&collisionMgr, &direction, 0);
+	return result;
 }
 
 bool StageEntity::checkSquished()
 {
-	u32 _2bf = this->empty;
-	if (_2bf != 0) {
-		return true;
+	u8 flags = _2bf;
+	if (flags != 0) {
+		if ((u8)(flags & 1) && (collisionMgr._rawr & 0x15))
+			return true;
+		if ((u8)(flags & 2) && (collisionMgr._rawr & 0x2a))
+			return true;
+		if ((u8)(flags & 8) && (collisionMgr._rawr & 0x1f40))
+			return true;
+		if ((u8)(flags & 4) && (collisionMgr._rawr & 0xe000))
+			return true;
 	}
+	return false;
 }
 
 void StageEntity::onMegaGroundPound()

@@ -20,7 +20,7 @@ public:
 	inline Object149() {};
 	inline ~Object149() {};
 };
-NTR_SIZE_GUARD(Object149, 0x4F8);
+static_assert(sizeof(Object149) == 0x4F8);
 
 extern ActorProfile Object149_Profile;
 

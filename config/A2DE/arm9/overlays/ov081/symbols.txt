@@ -49,7 +49,7 @@ func_ov081_0217b3dc kind:function(arm,size=0x3c) addr:0x0217b3dc
 func_ov081_0217b418 kind:function(arm,size=0xe4) addr:0x0217b418
 _ZN9Object10113onHeapCreatedEv kind:function(arm,size=0x58) addr:0x0217b4fc
 func_ov081_0217b554 kind:function(arm,size=0x34) addr:0x0217b554
-_ZN9Object1026createEv kind:function(arm,size=0x58) addr:0x0217b588
+_ZN9Object1017create2Ev kind:function(arm,size=0x58) addr:0x0217b588
 _ZN9Object1016createEv kind:function(arm,size=0x58) addr:0x0217b5e0
 data_ov081_0217b638 kind:data(any) addr:0x0217b638
 data_ov081_0217b644 kind:data(any) addr:0x0217b644

@@ -5,32 +5,32 @@ void *Object23::create()
 	return new Object23();
 }
 
-void *Object24::create()
+void *Object23::create2()
 {
-	return new Object24();
+	return new Object23();
 }
 
-void *Object25::create()
+void *Object23::create3()
 {
-	return new Object25();
+	return new Object23();
 }
 
-void *Object26::create()
+void *Object23::create4()
 {
-	return new Object26();
+	return new Object23();
 }
 
 // 0x021439c8
 ActorProfile Object23_Profile = { Object23::create, 23, 31, NULL /* TODO: 0x02143678 */ };
 
 // 0x021439d4
-ActorProfile Object24_Profile = { Object24::create, 24, 32, NULL /* TODO: 0x02143678 */ };
+ActorProfile Object24_Profile = { Object23::create2, 24, 32, NULL /* TODO: 0x02143678 */ };
 
 // 0x021439e0
-ActorProfile Object25_Profile = { Object25::create, 25, 33, NULL /* TODO: 0x02143678 */ };
+ActorProfile Object25_Profile = { Object23::create3, 25, 33, NULL /* TODO: 0x02143678 */ };
 
 // 0x021439ec
-ActorProfile Object26_Profile = { Object26::create, 26, 34, NULL /* TODO: 0x02143678 */ };
+ActorProfile Object26_Profile = { Object23::create4, 26, 34, NULL /* TODO: 0x02143678 */ };
 
 void Object23::pendingDestroy()
 {

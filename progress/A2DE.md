@@ -8,20 +8,32 @@ Measured on 2026-09-19 using the supplied A2DE ROM, dsd 0.12.0, Zig 0.16.0, objd
 | Object104 and Object266 (6666f37) | 80,668 | 2,876,454 | 2.804425% | 956 / 15,667 |
 | Verified lifecycle methods (e764d7d) | 81,580 | 2,876,454 | 2.836131% | 1,128 / 15,667 |
 | Goomba states and collision helpers (fcff83e) | 83,204 | 2,876,454 | 2.892589% | 1,145 / 15,667 |
-| Object layouts, vectors and sound-test update | 87,612 | 2,876,454 | 3.045834% | 1,184 / 15,667 |
+| Object layouts, vectors and sound-test update (262f343) | 87,612 | 2,876,454 | 3.045834% | 1,184 / 15,667 |
+| Collision, movement and minigame lifecycle reconstruction | 91,704 | 2,876,454 | 3.188092% | 1,223 / 15,667 |
 
-**Cumulative gain: 7,156 matching code bytes and 234 matching functions.** The code-size and function-count denominators have not changed. No previously matching function was lost, comparing each function's unit and original address rather than its possibly improved name.
+**Cumulative gain: 11,248 matching code bytes and 273 matching functions.** The code-size and function-count denominators have not changed. No previously matching function was lost, checking each function's unit, original address, and explicit symbol-rename mapping (including aliases and separate sections).
 
 ## Latest verified changes
 
-The latest checkpoint adds **39 matching functions / 4,408 matching code bytes** over fcff83e:
+This checkpoint adds **39 matching functions / 4,092 matching code bytes** over 262f343. The original denominators are unchanged and all 1,184 previously matching functions are retained, using the unit, original address and explicit symbol-rename mapping, including aliased functions and distinct sections.
 
-- Twelve object layouts recovered from original allocation sizes, member-constructor calls and vector virtual-table stores: Object47, Object60, Object61, Object63, Object71, Object72, Object81, Object148, Object149, Object155, Object211 and Object265. All 36 affected factory/destructor functions now match, and each layout has a compile-time size guard. Other methods of those classes remain incomplete.
-- StageEntity::tryNormalizeVec3: restores the original zero-vector check and helper invocation.
-- StageEntity::isPlayerInZone: restores the original position masking and rectangular-boundary checks.
-- SoundTestScene::onUpdate: restores address arguments, mode selection and input handling.
+| Area | New matching functions | New matching code bytes |
+| --- | ---: | ---: |
+| Six object layouts and shared-profile factories | 19 | 2,092 |
+| StageEntity collision and movement helpers | 7 | 876 |
+| Actor directional movement and nearest-player search | 4 | 772 |
+| MGScene and MGDebugScene lifecycle routines | 9 | 352 |
 
-All 39 functions match the original in objdiff. No previous matching function was lost, and the measurement denominators remain unchanged.
+- **Object23, Object78, Object94, Object101, Object115 and Object135:** reconstruct member offsets and allocation sizes. Profiles 24/25/26 create Object23, profile 95 creates Object94, and profile 102 creates Object101. These are shared runtime classes, not additional distinct enemy implementations. Only the listed functions are claimed matching; the classes are still incomplete.
+- **StageEntity:** reconstruct squish detection, side/bottom/cumulative sensor updates, lava collision handling, rotation-to-target and bounce response. CollisionMgr's previously opaque fields at 0x54 and 0x68 are recovered without changing the enclosing layout.
+- **Actor:** reconstruct directional velocity in 2D/3D and nearest-player searches with and without horizontal wrapping. Correct the search API to return an Actor pointer and accept optional displacement-output pointers. The angle parameter uses the original low-16-bit wrapping behavior.
+- **Minigames:** reconstruct creation/destruction/render/update hooks and the creation helper in MGScene, plus MGDebugScene::preUpdate. Recover MGScene fields at 0x5C and 0x60 while preserving affected derived layouts. This incorporates cappuch's PR #10, with original-binary-verified corrections to global/helper names and additional recovered methods.
+
+**Size-check correction:** NTR_SIZE_GUARD is currently an empty macro in nsmb_nitro.hpp. The preceding checkpoint's statement that its guards enforced the sizes was incorrect. This checkpoint replaces the guards on the twelve previously recovered object layouts and the six new layouts with active static_assert checks. The earlier matching-code measurements remain valid.
+
+### Previous layout checkpoint
+
+At 262f343, twelve object layouts (Object47, Object60, Object61, Object63, Object71, Object72, Object81, Object148, Object149, Object155, Object211 and Object265) and three routines (StageEntity::tryNormalizeVec3, StageEntity::isPlayerInZone and SoundTestScene::onUpdate) added 39 functions / 4,408 bytes over fcff83e. The full class implementations remain incomplete.
 
 ## Preceding checkpoints
 
@@ -46,12 +58,21 @@ zig build all -DRelease=A2DE -j4
 zig build report -DRelease=A2DE
 ```
 
-The batch manifest records SHA-256 fingerprints of the 39 locally compiled functions that objdiff matched to the original. The publication workflow checks exact source preimages/postimages, recompiles all game/library units without a ROM, and checks those fingerprints before committing the patch. This verifies reproduction of the locally tested code; it does not calculate whole-game matching progress without the private ROM.
+The batch manifest records SHA-256 fingerprints of the 39 locally compiled functions that objdiff matched to the original, including relocation fingerprints. The publication workflow checks exact source preimages/postimages, recompiles all 356 game/library units without a ROM, and verifies these fingerprints before committing the patch. This reproduces the locally tested code; it does not calculate whole-game matching progress without the private ROM.
+
+Four recovered ARM routines (rotation, squish detection, bounce response and 3D directional velocity) also pass **4,000 deterministic synthetic-state tests** against independent scalar models, executed through Unicorn 2.1.4. The test uses generated state and trigonometry-table values, not original game data:
+
+```sh
+python3 -m pip install pyelftools==0.32 unicorn==2.1.4
+python3 tools/test_recovered_leaf.py --object-root build/ci-objects
+```
+
+These are focused function tests; they do not test stage completion, rendering, audio or a playable ROM.
 
 These checks are **object-code validation, not a linked-ROM or gameplay test**. The project is not 100% decompiled and this checkpoint is not a native PC/Android port.
 
 ## Attribution
 
-The reconstruction incorporates Ozero4's upstream contributions in NSMB-Decomp/nsmb#13, #14 and #15, and cappuch's cleanup routines from #11. Additional work corrects Object104's external helper linkage and Goomba's helper parameter types, reconstructs the StageEntity helper bodies, recovers the twelve layouts and three additional routines above, and verifies all reported gains locally.
+The reconstruction incorporates Ozero4's upstream contributions in NSMB-Decomp/nsmb#13, #14 and #15, and cappuch's cleanup/lifecycle work from #11 and #10. Additional work corrects Object104's external helper linkage and Goomba's helper parameter types, reconstructs the StageEntity helper bodies, recovers the twelve layouts and three additional routines above, and verifies all reported gains locally.
 
 No ROM, extracted original game binaries, or official NitroSDK library sources are published with these changes.

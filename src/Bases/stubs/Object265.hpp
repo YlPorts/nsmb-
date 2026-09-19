@@ -17,7 +17,7 @@ public:
 	inline Object265() {};
 	inline ~Object265() {};
 };
-NTR_SIZE_GUARD(Object265, 0x4B4);
+static_assert(sizeof(Object265) == 0x4B4);
 
 extern ActorProfile Object265_Profile;
 

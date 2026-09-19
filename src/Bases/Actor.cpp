@@ -199,12 +199,28 @@ void Actor::applyVelocity()
 	this->applyVelocityToPosition(newVelocity);
 }
 
-void Actor::applyDirectionalVelocity()
+void Actor::applyDirectionalVelocity(u32 angle)
 {
+	Vec3_32 directional;
+	i32 speed = velocity.x < 0 ? -velocity.x : velocity.x;
+	directional.x = _FixedMul(speed, _FixedCos((u16)angle));
+	directional.y = velocity.y + _FixedMul(speed, _FixedSin((u16)angle));
+	directional.z = velocity.z;
+	Vec3_32 adjusted = applyAcceleration(&directional);
+	applyVelocityToPosition(adjusted);
 }
 
 void Actor::setDirectionalVelocity3D()
 {
+	i32 z = _FixedMul(velH, _FixedCos((u16)lastRotation.y));
+	i32 nextY = velocity.y + accelV;
+	i32 y = minVelV;
+	if (nextY >= y)
+		y = nextY;
+	i32 x = _FixedMul(velH, _FixedSin((u16)lastRotation.y));
+	velocity.x = x;
+	velocity.y = y;
+	velocity.z = z;
 }
 
 void Actor::updateHorizontalVelocity()
@@ -320,24 +336,83 @@ bool Actor::isOutOfViewVertical(FxRect *rect, int player_id)
 	return y + 0x18000 + rect->halfHeight < -(Game::cameraY[player_id] + Game::cameraZoomY[player_id]);
 }
 
-i32 (*data_ov000_020ca858)(i32, i32, i32, i32);
-i32 (*data_ov000_020c6c14[3])(i32, i32, i32, i32) = {
+Actor *(*data_ov000_020ca858)(i32, i32, i32 *, i32 *);
+Actor *(*data_ov000_020c6c14[3])(i32, i32, i32 *, i32 *) = {
     Actor::calcDistanceToPlayerNoWrap,
     Actor::calcDistanceToPlayerWrap,
     Actor::calcDistanceToPlayerWrap,
 };
 
-i32 Actor::calcDistanceToPlayerNoWrap(i32, i32, i32, i32)
+Actor *Actor::calcDistanceToPlayerNoWrap(i32 x, i32 y, i32 *deltaX, i32 *deltaY)
 {
+	i32 i;
+	i32 minDistance;
+	Actor *nearest;
+	minDistance = 0x7fffffff;
+	nearest = NULL;
+	i = 0;
+	for (; i < (i32)func_020202a0(); ++i) {
+		Actor *player = (Actor *)Game::getPlayer(i);
+		if (player != NULL) {
+			i32 dx = ((player->position.x + player->centerOffset.x) >> 12) - x;
+			i32 dy = ((player->position.y + player->centerOffset.y) >> 12) - y;
+			i32 distance = dx * dx + dy * dy;
+			if (minDistance > distance) {
+				if (deltaX != NULL)
+					*deltaX = dx;
+				nearest = player;
+				if (deltaY != NULL)
+					*deltaY = dy;
+				minDistance = distance;
+			}
+		}
+	}
+	return nearest;
 }
 
-i32 Actor::calcDistanceToPlayerWrap(i32, i32, i32, i32)
+Actor *Actor::calcDistanceToPlayerWrap(i32 x, i32 y, i32 *deltaX, i32 *deltaY)
 {
+	i32 i;
+	i32 minDistance;
+	Actor *nearest;
+	minDistance = 0x7fffffff;
+	nearest = NULL;
+	i = 0;
+	x &= data_02085aa4 >> 12;
+	for (; i < (i32)func_020202a0(); ++i) {
+		Actor *player = (Actor *)Game::getPlayer(i);
+		if (player != NULL) {
+			i32 py = (player->position.y + player->centerOffset.y) >> 12;
+			i32 halfWidth = ((data_02085aa4 + 1) / 2) >> 12;
+			i32 dx = player->position.x + player->centerOffset.x;
+			dx &= data_02085aa4;
+			dx >>= 12;
+			dx -= x;
+			if (dx < 0) {
+				if (dx < -halfWidth)
+					dx += halfWidth * 2;
+			} else if (dx > halfWidth) {
+				dx = -(halfWidth * 2 - dx);
+			}
+			i32 dy = py - y;
+			i32 distance = dx * dx + dy * dy;
+			if (minDistance > distance) {
+				if (deltaX != NULL)
+					*deltaX = dx;
+				nearest = player;
+				if (deltaY != NULL)
+					*deltaY = dy;
+				minDistance = distance;
+			}
+		}
+	}
+	return nearest;
 }
 
-i32 Actor::getDistanceToPlayer(i32 x, i32 y)
+Actor *Actor::getDistanceToPlayer(i32 *x, i32 *y)
 {
-	(*data_ov000_020ca858)((this->position.x + this->centerOffset.x) >> 0xc, (this->position.y + this->centerOffset.y) >> 0xc, x, y);
+	return (*data_ov000_020ca858)((position.x + centerOffset.x) >> 12,
+	                            (position.y + centerOffset.y) >> 12, x, y);
 }
 
 void Actor::setCalcPositionToPlayerFunction(u32 param_1)

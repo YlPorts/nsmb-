@@ -20,7 +20,7 @@ public:
 	inline Object211() {};
 	inline ~Object211() {};
 };
-NTR_SIZE_GUARD(Object211, 0x6B8);
+static_assert(sizeof(Object211) == 0x6B8);
 
 extern ActorProfile Object211_Profile;
 

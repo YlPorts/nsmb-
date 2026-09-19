@@ -31,9 +31,9 @@ func_ov032_021434d4 kind:function(arm,size=0x68) addr:0x021434d4
 func_ov032_0214353c kind:function(arm,size=0xe4) addr:0x0214353c
 _ZN8Object2313onHeapCreatedEv kind:function(arm,size=0x58) addr:0x02143620
 func_ov032_02143678 kind:function(arm,size=0x34) addr:0x02143678
-_ZN8Object266createEv kind:function(arm,size=0x68) addr:0x021436ac
-_ZN8Object256createEv kind:function(arm,size=0x68) addr:0x02143714
-_ZN8Object246createEv kind:function(arm,size=0x68) addr:0x0214377c
+_ZN8Object237create4Ev kind:function(arm,size=0x68) addr:0x021436ac
+_ZN8Object237create3Ev kind:function(arm,size=0x68) addr:0x02143714
+_ZN8Object237create2Ev kind:function(arm,size=0x68) addr:0x0214377c
 _ZN8Object236createEv kind:function(arm,size=0x68) addr:0x021437e4
 data_ov032_0214384c kind:data(any) addr:0x0214384c
 data_ov032_02143850 kind:data(any) addr:0x02143850

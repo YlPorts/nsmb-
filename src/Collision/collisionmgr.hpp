@@ -11,7 +11,11 @@ class CollisionMgr
 	void *__1;
 	u8 _pad1[0x8];
 	CollisionMgr *__2;
-	u8 _pad2[0x46];
+	u8 _pad2[0x20];
+	Vec3_32 _54; /* 0x54 */
+	u8 _pad_64[4];
+	fx32 _68; /* 0x68 */
+	u8 _pad_6c[0x0e];
 	u32 _rawr;
 	u8 _pad3[0xe];
 	i8 _25e;

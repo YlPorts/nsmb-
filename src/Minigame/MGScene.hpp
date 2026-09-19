@@ -3,12 +3,18 @@
 class MGScene : public Object
 {
       public:
+	u32 _5c;
+	u32 _60;
+
 	inline ~MGScene() {};
 	MGScene();
 
 	static void func_02024ab8();
 	static void func_02024bec(u16, u32, u32);
 	static void func_02024ad0(void *);
+
+	bool func_02024e50();
+	static void func_02024e94();
 
 	bool preCreate();
 	void postCreate(u32);

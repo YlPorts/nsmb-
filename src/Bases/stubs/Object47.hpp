@@ -25,7 +25,7 @@ public:
 	inline Object47() {};
 	inline ~Object47() {};
 };
-NTR_SIZE_GUARD(Object47, 0x704);
+static_assert(sizeof(Object47) == 0x704);
 
 extern ActorProfile Object48_Profile;
 extern ActorProfile Object47_Profile;
