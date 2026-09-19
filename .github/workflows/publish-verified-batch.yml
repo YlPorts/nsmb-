@@ -5,9 +5,10 @@ on:
     branches: [main]
     paths:
       - 'progress/batches/current.patch.gz'
+      - 'progress/batches/current.patch.part-*'
       - 'progress/batches/current.json'
+      - 'progress/batches/current.functions.json.gz'
       - '.github/workflows/publish-verified-batch.yml'
-      - 'tools/test_recovered_leaf.py'
   workflow_dispatch:
 
 permissions:
@@ -32,86 +33,72 @@ jobs:
           python3 - <<'PY'
           import gzip, hashlib, json, pathlib, re, subprocess
           manifest = json.loads(pathlib.Path('progress/batches/current.json').read_text())
-          patch = gzip.decompress(pathlib.Path('progress/batches/current.patch.gz').read_bytes())
+          if manifest['schema_version'] != 2:
+              raise RuntimeError('Unsupported batch manifest schema')
+          patch_path = pathlib.Path('progress/batches/current.patch.gz')
+          if manifest.get('patch_parts'):
+              parts = manifest['patch_parts']
+              if len(parts) != len(set(parts)) or not all(re.fullmatch(r'current\.patch\.part-[0-9]{2}', p) for p in parts):
+                  raise RuntimeError('Invalid transport part names')
+              packed = b''.join((patch_path.parent / p).read_bytes() for p in parts)
+          else:
+              packed = patch_path.read_bytes()
+          patch = gzip.decompress(packed)
           if hashlib.sha256(patch).hexdigest() != manifest['patch_sha256']:
               raise RuntimeError('Patch fingerprint mismatch')
-          pattern = rb'^diff --git a/([^\n ]+) b/([^\n ]+)\nindex ([0-9a-f]{40})\.\.([0-9a-f]{40}) 100644\n'
+          # Full-index text modifications and additions only; no renames/deletes/mode changes.
+          pattern = rb'^diff --git a/([^\n ]+) b/([^\n ]+)\n(?:(new file mode 100644)\n)?index ([0-9a-f]{40})\.\.([0-9a-f]{40})( 100644)?\n'
           entries = re.findall(pattern, patch, re.M)
-          if not entries or len(entries) != patch.count(b'diff --git '):
+          if not entries or len(entries) != len(re.findall(rb'^diff --git ', patch, re.M)):
               raise RuntimeError('Unsupported patch structure')
-          states = []
-          for old, new, before, after in entries:
+          extras = {'readme.md', 'progress/A2DE.md', 'progress/A2DE.svg', 'progress/summary.json',
+                    'progress/layouts-A2DE-20260919.md', 'tools/verify_matching_batch.py',
+                    'tools/test_platform_lists.py', 'tools/update_progress.py'}
+          states, seen = [], set()
+          def blob(path):
+              p = pathlib.Path(path)
+              if p.is_symlink():
+                  raise RuntimeError('Refusing symlink: ' + path)
+              if not p.exists():
+                  return b'0' * 40
+              return subprocess.check_output(['git', 'hash-object', '--', path]).strip()
+          for old, new, addition, before, after, mode in entries:
               path = pathlib.PurePosixPath(new.decode())
-              if old != new or path.is_absolute() or '..' in path.parts:
-                  raise RuntimeError('Unsafe patch path')
-              if not (str(path).startswith(('src/', 'config/')) or str(path) == 'progress/A2DE.md'):
-                  raise RuntimeError('Patch path outside the permitted source/progress scope')
-              current = subprocess.check_output(['git', 'hash-object', str(path)]).strip()
-              states.append((str(path), current, before, after))
+              if old != new or path.is_absolute() or '..' in path.parts or str(path) in seen:
+                  raise RuntimeError('Unsafe or duplicate patch path')
+              if not (str(path).startswith(('src/', 'config/')) or str(path) in extras):
+                  raise RuntimeError('Path outside the permitted source/progress scope')
+              if bool(addition) != (before == b'0' * 40) or bool(mode) == bool(addition) or after == b'0' * 40:
+                  raise RuntimeError('Unsupported file operation')
+              seen.add(str(path))
+              states.append((str(path), blob(str(path)), before, after))
           if all(current == after for _, current, _, after in states):
               print('The verified batch is already applied.')
           else:
               if not all(current == before for _, current, before, _ in states):
                   raise RuntimeError('Source changed: refusing to overwrite concurrent work')
+              numstat = subprocess.check_output(['git', 'apply', '--numstat', '-z', '-'], input=patch)
+              parsed = {record.split(b'\t', 2)[2].decode() for record in numstat.split(b'\0') if record}
+              if parsed != seen:
+                  raise RuntimeError('Patch path manifest disagrees with git apply')
               subprocess.run(['git', 'apply', '--check', '--index', '-'], input=patch, check=True)
               subprocess.run(['git', 'apply', '--index', '-'], input=patch, check=True)
           for path, _, _, after in states:
-              if subprocess.check_output(['git', 'hash-object', path]).strip() != after:
+              if blob(path) != after:
                   raise RuntimeError('Source postimage mismatch: ' + path)
+          patch_path.write_bytes(packed)
+          subprocess.run(['git', 'add', '--', str(patch_path)], check=True)
           subprocess.run(['git', 'diff', '--cached', '--check'], check=True)
           PY
       - name: Compile all game and library units without a ROM
         run: python3 tools/compile_sources.py --prepare
-      - name: Reproduce the locally matched function binaries
-        shell: bash
+      - name: Reproduce matched functions and exercise synthetic states
         run: |
           python3 -m pip install pyelftools==0.32 unicorn==2.1.4
+          python3 tools/verify_matching_batch.py
           python3 tools/test_recovered_leaf.py
-          python3 - <<'PY'
-          import hashlib, json, pathlib
-          from elftools.elf.elffile import ELFFile
-          from elftools.elf.relocation import RelocationSection
-          manifest = json.loads(pathlib.Path('progress/batches/current.json').read_text())
-          verified = []
-          for expected in manifest['functions']:
-              unit = pathlib.PurePosixPath(expected['unit'])
-              if unit.is_absolute() or '..' in unit.parts or not str(unit).startswith(('src/', 'lib/')):
-                  raise RuntimeError('Unsafe object path')
-              path = pathlib.Path('build/ci-objects') / (str(unit) + '.o')
-              with path.open('rb') as stream:
-                  elf = ELFFile(stream)
-                  symbols = elf.get_section_by_name('.symtab').get_symbol_by_name(expected['symbol'])
-                  if not symbols or len(symbols) != 1:
-                      raise RuntimeError('Missing or ambiguous function: ' + expected['symbol'])
-                  symbol = symbols[0]
-                  section = elf.get_section(symbol['st_shndx'])
-                  size = symbol['st_size']
-                  offset = (symbol['st_value'] & ~1) - section['sh_addr']
-                  code = section.data()[offset:offset + size]
-                  if size != expected['size'] or hashlib.sha256(code).hexdigest() != expected['sha256']:
-                      raise RuntimeError('Compiled function differs from the locally matched reference: ' + expected['symbol'])
-                  relocations = []
-                  for relsec in elf.iter_sections():
-                      if not isinstance(relsec, RelocationSection) or relsec['sh_info'] != symbol['st_shndx']:
-                          continue
-                      symtab = elf.get_section(relsec['sh_link'])
-                      for rel in relsec.iter_relocations():
-                          rel_offset = rel['r_offset'] - symbol['st_value']
-                          if 0 <= rel_offset < size:
-                              relocations.append([rel_offset, rel['r_info_type'],
-                                                  symtab.get_symbol(rel['r_info_sym']).name,
-                                                  rel.entry.get('r_addend')])
-                  relocations.sort()
-                  digest = hashlib.sha256(json.dumps(relocations, separators=(',', ':')).encode()).hexdigest()
-                  if digest != expected['relocations_sha256']:
-                      raise RuntimeError('Compiled relocations differ: ' + expected['symbol'])
-                  verified.append(expected)
-          report = {'verified_function_count': len(verified), 'functions': verified,
-                    'validation': 'Reproduces locally objdiff-matched code; not a ROM-free whole-game matching measurement.'}
-          pathlib.Path('build/ci-objects/batch-verification.json').write_text(json.dumps(report, indent=2) + '\n')
-          print(report['validation'])
-          print('Verified functions:', len(verified))
-          PY
+          python3 tools/test_platform_lists.py
+          python3 tools/update_progress.py --check
       - name: Commit the verified batch without overwriting remote changes
         shell: bash
         run: |
@@ -127,6 +114,13 @@ jobs:
             git push origin HEAD:main
           fi
           git rev-parse HEAD > build/ci-objects/verified-source-commit.txt
+          python3 - <<'PY'
+          import json, pathlib, subprocess
+          path = pathlib.Path('build/ci-objects/compile-report.json')
+          report = json.loads(path.read_text())
+          report['compiled_source_commit'] = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          path.write_text(json.dumps(report, indent=2) + '\n')
+          PY
       - name: Package the exact source revision
         if: always()
         run: |
