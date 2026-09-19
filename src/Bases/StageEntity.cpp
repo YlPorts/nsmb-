@@ -690,15 +690,17 @@ u32 StageEntity::stopPlayerInShell(ActiveCollider *collider, PlayerActor *player
 	return 0;
 }
 
-void func_0201eef8(u32, FxRect *);
+extern "C" void func_0201eef8(u32, FxRect *);
 bool StageEntity::isPlayerInZone(PlayerActor *player, u32 id)
 {
 	FxRect rect;
-
 	func_0201eef8(id, &rect);
-	player->position.x &= data_02085aa4;
-	i32 pos_x = player->position.x;
-	if ((((rect.x <= pos_x) && (pos_x <= rect.x + rect.halfWidth)) && (player->position.y >= rect.y)) && (rect.y - rect.halfHeight >= pos_x)) {
+	fx32 right = rect.x + rect.halfWidth;
+	fx32 bottom = rect.y - rect.halfHeight;
+	Vec3_32 *position = &player->position;
+	position->x &= data_02085aa4;
+	if (rect.x <= position->x && position->x <= right &&
+	    rect.y >= position->y && position->y >= bottom) {
 		return true;
 	}
 	return false;
@@ -720,14 +722,15 @@ void StageEntity::func_ov000_020988ac(u32 bit)
 	data_ov000_020ca2b8 &= ~(1 << (0x1f & bit));
 }
 
+extern "C" Vec3_32 func_02045908(Vec3_32 *);
+
 Vec3_32 StageEntity::tryNormalizeVec3(Vec3_32 *input)
 {
-	if (input->x == 0 && input->x == 0 && input->z == 0) {
+	if (input->x == 0 && input->y == 0 && input->z == 0) {
 		return *input;
 	}
-	Vec3_32 result;
-
-	return result;
+	func_02045908(input);
+	return *input;
 }
 
 u32 StageEntity::getSpritePriority(u32 a)
