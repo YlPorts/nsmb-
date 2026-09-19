@@ -1,0 +1,123 @@
+name: Publish verified decompilation batch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'progress/batches/current.patch.gz'
+      - 'progress/batches/current.json'
+      - '.github/workflows/publish-verified-batch.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-verified-batch-main
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'YlPorts/nsmb-'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Apply only the exact locally validated source patch
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import gzip, hashlib, json, pathlib, re, subprocess
+          manifest = json.loads(pathlib.Path('progress/batches/current.json').read_text())
+          patch = gzip.decompress(pathlib.Path('progress/batches/current.patch.gz').read_bytes())
+          if hashlib.sha256(patch).hexdigest() != manifest['patch_sha256']:
+              raise RuntimeError('Patch fingerprint mismatch')
+          pattern = rb'^diff --git a/([^\n ]+) b/([^\n ]+)\nindex ([0-9a-f]{40})\.\.([0-9a-f]{40}) 100644\n'
+          entries = re.findall(pattern, patch, re.M)
+          if not entries or len(entries) != patch.count(b'diff --git '):
+              raise RuntimeError('Unsupported patch structure')
+          states = []
+          for old, new, before, after in entries:
+              path = pathlib.PurePosixPath(new.decode())
+              if old != new or path.is_absolute() or '..' in path.parts:
+                  raise RuntimeError('Unsafe patch path')
+              if not (str(path).startswith(('src/', 'config/')) or str(path) == 'progress/A2DE.md'):
+                  raise RuntimeError('Patch path outside the permitted source/progress scope')
+              current = subprocess.check_output(['git', 'hash-object', str(path)]).strip()
+              states.append((str(path), current, before, after))
+          if all(current == after for _, current, _, after in states):
+              print('The verified batch is already applied.')
+          else:
+              if not all(current == before for _, current, before, _ in states):
+                  raise RuntimeError('Source changed: refusing to overwrite concurrent work')
+              subprocess.run(['git', 'apply', '--check', '--index', '-'], input=patch, check=True)
+              subprocess.run(['git', 'apply', '--index', '-'], input=patch, check=True)
+          for path, _, _, after in states:
+              if subprocess.check_output(['git', 'hash-object', path]).strip() != after:
+                  raise RuntimeError('Source postimage mismatch: ' + path)
+          subprocess.run(['git', 'diff', '--cached', '--check'], check=True)
+          PY
+      - name: Compile all game and library units without a ROM
+        run: python3 tools/compile_sources.py --prepare
+      - name: Reproduce the locally matched function binaries
+        shell: bash
+        run: |
+          python3 -m pip install pyelftools==0.32
+          python3 - <<'PY'
+          import hashlib, json, pathlib
+          from elftools.elf.elffile import ELFFile
+          manifest = json.loads(pathlib.Path('progress/batches/current.json').read_text())
+          verified = []
+          for expected in manifest['functions']:
+              unit = pathlib.PurePosixPath(expected['unit'])
+              if unit.is_absolute() or '..' in unit.parts or not str(unit).startswith(('src/', 'lib/')):
+                  raise RuntimeError('Unsafe object path')
+              path = pathlib.Path('build/ci-objects') / (str(unit) + '.o')
+              with path.open('rb') as stream:
+                  elf = ELFFile(stream)
+                  symbols = elf.get_section_by_name('.symtab').get_symbol_by_name(expected['symbol'])
+                  if not symbols or len(symbols) != 1:
+                      raise RuntimeError('Missing or ambiguous function: ' + expected['symbol'])
+                  symbol = symbols[0]
+                  section = elf.get_section(symbol['st_shndx'])
+                  size = symbol['st_size']
+                  offset = (symbol['st_value'] & ~1) - section['sh_addr']
+                  code = section.data()[offset:offset + size]
+                  if size != expected['size'] or hashlib.sha256(code).hexdigest() != expected['sha256']:
+                      raise RuntimeError('Compiled function differs from the locally matched reference: ' + expected['symbol'])
+                  verified.append(expected)
+          report = {'verified_function_count': len(verified), 'functions': verified,
+                    'validation': 'Reproduces locally objdiff-matched code; not a ROM-free whole-game matching measurement.'}
+          pathlib.Path('build/ci-objects/batch-verification.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(report['validation'])
+          print('Verified functions:', len(verified))
+          PY
+      - name: Commit the verified batch without overwriting remote changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            python3 - <<'PY'
+          import json, pathlib, subprocess
+          message = json.loads(pathlib.Path('progress/batches/current.json').read_text())['commit_message']
+          subprocess.run(['git', 'commit', '-m', message], check=True)
+          PY
+            git push origin HEAD:main
+          fi
+          git rev-parse HEAD > build/ci-objects/verified-source-commit.txt
+      - name: Package the exact source revision
+        if: always()
+        run: |
+          mkdir -p build/ci-objects
+          git archive --format=tar.gz HEAD -o build/ci-objects/source-snapshot.tar.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: A2DE-verified-decomp-batch
+          path: build/ci-objects/
+          if-no-files-found: error
+          retention-days: 7

@@ -1,0 +1,42 @@
+{
+  "base_reference": "e764d7d3553dea6d0ec1571d09226d59567a5cb4",
+  "patch_sha256": "eea7196e61a13a7297413c631c7b92448cc8d06896a577fa700a9da407d696a8",
+  "commit_message": "decomp: match Goomba states and collision helpers (A2DE 2.892589%)\n\nLocal objdiff: 83204 / 2876454 matching code bytes; 1145 / 15667\nmatching functions. Adds 1624 bytes and 17 functions over e764d7d\nwithout losing previously matching functions. Verify exact source\npreimages/postimages and reproduce all 17 compiled functions in CI.\n\nIncludes Ozero4 PR #13 and cappuch PR #11, with corrected player\nparameters and newly reconstructed StageEntity collision helpers.\n\nCo-authored-by: Ozero4 <114027116+Ozero4@users.noreply.github.com>\nCo-authored-by: cappuch <mikusdevr@gmail.com>",
+  "local_measures": {
+    "fuzzy_match_percent": 4.1707296,
+    "total_code": "2876454",
+    "matched_code": "83204",
+    "matched_code_percent": 2.892589,
+    "total_data": "851344",
+    "matched_data": "4036",
+    "matched_data_percent": 0.47407392,
+    "total_functions": 15667,
+    "matched_functions": 1145,
+    "matched_functions_percent": 7.308355,
+    "complete_code": "188",
+    "complete_code_percent": 0.006535825,
+    "complete_data": "80",
+    "complete_data_percent": 0.009396907,
+    "total_units": 689,
+    "complete_units": 1
+  },
+  "functions": [
+    {"unit":"src/Bases/FireSnake","symbol":"_ZN9FireSnake9onDestroyEv","size":24,"sha256":"c45a6ee907d1e0ae080251c6981c52e332f4d14db80fb3ace54237b4b8d69ad1"},
+    {"unit":"src/Bases/Goomba","symbol":"_ZN6Goomba16megaDroppedStateEv","size":160,"sha256":"0cb5bdef8624405afb7353dd8e18b528f32d28ea275c5fa2bca0e92e0468c544"},
+    {"unit":"src/Bases/Goomba","symbol":"_ZN6Goomba12stompedStateEv","size":168,"sha256":"8868d53e41052c5548eb7b301837f00857d231cafa4c606d3f2dfe23ea59074b"},
+    {"unit":"src/Bases/Goomba","symbol":"_ZN6Goomba17onUpdate_defeatedEv","size":76,"sha256":"d2d44f996ca8983edde7cdabe1f79d36b6ea085dcb6214af241e50e725662ebc"},
+    {"unit":"src/Bases/Goomba","symbol":"_ZN6Goomba9onStompedEv","size":56,"sha256":"6ef60e0904c32abb7234ad4d635c260ed2c324225fb113a2c0f45014cce2fd15"},
+    {"unit":"src/Bases/Goomba","symbol":"_ZN6Goomba15playerCollisionEP14ActiveColliderS1_","size":136,"sha256":"1531d720cec3abea6f4030010ceb94bad9f88ee5724d20ce6a84c950945716eb"},
+    {"unit":"src/Bases/Goomba","symbol":"_ZN6Goomba17updateMusicEventsEl","size":84,"sha256":"84323107044d5ad4489c525dd77ac7aa10bdb804ba7b0bf917cbc92a22c185a9"},
+    {"unit":"src/Bases/Goomba","symbol":"_ZN10MiniGoomba6createEv","size":60,"sha256":"a266697b8af2c12415811e0335fb6e9ddf532e5d112efd6469fb7cc4f39b1b19"},
+    {"unit":"src/Bases/Goomba","symbol":"_ZN10ParaGoomba6createEv","size":60,"sha256":"a266697b8af2c12415811e0335fb6e9ddf532e5d112efd6469fb7cc4f39b1b19"},
+    {"unit":"src/Bases/Goomba","symbol":"_ZN10ParaGoombaD2Ev","size":104,"sha256":"a78a947a3e29646160e48e7a9c770f1346291dca163261d3facc2a18aa9ebe3d"},
+    {"unit":"src/Bases/Goomba","symbol":"_ZN10ParaGoombaD0Ev","size":112,"sha256":"16cce533d23b64a04025369949a00ce285a40fb40471f016afeb77ce48345e7f"},
+    {"unit":"src/Bases/Goomba","symbol":"_ZN10MiniGoombaD2Ev","size":104,"sha256":"a78a947a3e29646160e48e7a9c770f1346291dca163261d3facc2a18aa9ebe3d"},
+    {"unit":"src/Bases/Goomba","symbol":"_ZN10MiniGoombaD0Ev","size":112,"sha256":"16cce533d23b64a04025369949a00ce285a40fb40471f016afeb77ce48345e7f"},
+    {"unit":"src/Bases/Object18","symbol":"_ZN8Object189onDestroyEv","size":56,"sha256":"3e0ab3b05580683a2fa3683b50f5c4d641c7110a749014f718a9e439e90fac54"},
+    {"unit":"src/Bases/StageEntity","symbol":"_ZN11StageEntity19func_ov000_0209ccd0EP10PlayerBase","size":108,"sha256":"07671b569613fe394c1532b1e2643d84714d41fac85b0bf3fc18f7e5c1f7e55f"},
+    {"unit":"src/Bases/StageEntity","symbol":"_ZN11StageEntity19func_ov000_0209d240EP10PlayerBase","size":96,"sha256":"1170908d266e3c5932a1400cdfebfe459954739c74274c8a387095f40c89ad91"},
+    {"unit":"src/Bases/StageEntity","symbol":"_ZN11StageEntity19func_ov000_0209d3d0EP10PlayerBase","size":108,"sha256":"1512edd7aabf85c85c0ff42de11740d541126e1d79c14925e42b917e37ebe911"}
+  ]
+}
