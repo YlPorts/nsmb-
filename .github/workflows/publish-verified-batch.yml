@@ -7,6 +7,7 @@ on:
       - 'progress/batches/current.patch.gz'
       - 'progress/batches/current.json'
       - '.github/workflows/publish-verified-batch.yml'
+      - 'tools/test_recovered_leaf.py'
   workflow_dispatch:
 
 permissions:
@@ -64,10 +65,12 @@ jobs:
       - name: Reproduce the locally matched function binaries
         shell: bash
         run: |
-          python3 -m pip install pyelftools==0.32
+          python3 -m pip install pyelftools==0.32 unicorn==2.1.4
+          python3 tools/test_recovered_leaf.py
           python3 - <<'PY'
           import hashlib, json, pathlib
           from elftools.elf.elffile import ELFFile
+          from elftools.elf.relocation import RelocationSection
           manifest = json.loads(pathlib.Path('progress/batches/current.json').read_text())
           verified = []
           for expected in manifest['functions']:
@@ -87,6 +90,21 @@ jobs:
                   code = section.data()[offset:offset + size]
                   if size != expected['size'] or hashlib.sha256(code).hexdigest() != expected['sha256']:
                       raise RuntimeError('Compiled function differs from the locally matched reference: ' + expected['symbol'])
+                  relocations = []
+                  for relsec in elf.iter_sections():
+                      if not isinstance(relsec, RelocationSection) or relsec['sh_info'] != symbol['st_shndx']:
+                          continue
+                      symtab = elf.get_section(relsec['sh_link'])
+                      for rel in relsec.iter_relocations():
+                          rel_offset = rel['r_offset'] - symbol['st_value']
+                          if 0 <= rel_offset < size:
+                              relocations.append([rel_offset, rel['r_info_type'],
+                                                  symtab.get_symbol(rel['r_info_sym']).name,
+                                                  rel.entry.get('r_addend')])
+                  relocations.sort()
+                  digest = hashlib.sha256(json.dumps(relocations, separators=(',', ':')).encode()).hexdigest()
+                  if digest != expected['relocations_sha256']:
+                      raise RuntimeError('Compiled relocations differ: ' + expected['symbol'])
                   verified.append(expected)
           report = {'verified_function_count': len(verified), 'functions': verified,
                     'validation': 'Reproduces locally objdiff-matched code; not a ROM-free whole-game matching measurement.'}
