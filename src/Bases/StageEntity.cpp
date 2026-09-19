@@ -195,20 +195,18 @@ void StageEntity::stopVelocity()
 }
 
 bool StageEntity::func_ov000_0209ccd0(PlayerBase *player)
-
 {
-	if ((this->_2c6 & 0x400) == 0) {
-		i32 tp = this->position.x;
-		i32 tpc = this->centerOffset.x;
-		i32 pp = player->position.x;
-		i32 pps = player->centerOffset.x;
-		this->linked_player = player->linked_player;
-		this->_3ee = ((u32)((tp + tpc) - (pp + pps))) >> 0x1f;
-		this->collisionType |= 0x8000;
-		return true;
-	}
-	return false;
+	if ((this->_2c6 & 0x400) != 0)
+		return false;
+
+	u32 delta = (this->position.x + this->centerOffset.x) -
+	            (player->position.x + player->centerOffset.x);
+	this->linked_player = player->linked_player;
+	this->_3ee = (delta & 0x80000000) >> 31;
+	this->collisionType |= CT_BlueShell;
+	return true;
 }
+
 
 void StageEntity::func_ov000_0209da00()
 {
@@ -780,4 +778,29 @@ bool StageEntity::func_ov000_0209ff98() {
 
 void StageEntity::onStomped()
 {
+}
+
+bool StageEntity::func_ov000_0209d240(PlayerBase *player)
+{
+	if ((this->_2c6 & 0x40) != 0)
+		return false;
+
+	u32 delta = (this->position.x + this->centerOffset.x) -
+	            (player->position.x + player->centerOffset.x);
+	this->linked_player = player->linked_player;
+	this->_3ee = (delta & 0x80000000) >> 31;
+	return true;
+}
+
+bool StageEntity::func_ov000_0209d3d0(PlayerBase *player)
+{
+	if ((this->_2c6 & 0x80) != 0)
+		return false;
+
+	u32 delta = (this->position.x + this->centerOffset.x) -
+	            (player->position.x + player->centerOffset.x);
+	this->linked_player = player->linked_player;
+	this->_3ee = (delta & 0x80000000) >> 31;
+	this->collisionType |= CT_Mega;
+	return true;
 }

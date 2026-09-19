@@ -1,5 +1,7 @@
 #include "FireSnake.hpp"
 
+extern "C" void func_ov023_0213e58c();
+
 FireSnake::FireSnake()
 {
 }
@@ -27,4 +29,10 @@ bool FireSnake::loadResources() {
 
 void FireSnake::_36()
 {
+}
+
+s32 FireSnake::onDestroy()
+{
+	func_ov023_0213e58c();
+	return 1;
 }
