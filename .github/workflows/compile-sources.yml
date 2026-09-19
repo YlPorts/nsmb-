@@ -1,0 +1,98 @@
+name: Compile sources (no ROM)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'lib/**'
+      - 'tools/**'
+      - '.github/workflows/compile-sources.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compile-sources-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare compiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/ci-tools build/ci-objects
+          curl --fail --location --retry 3 https://github.com/decompals/wibo/releases/download/1.2.0/wibo-x86_64 -o build/ci-tools/wibo
+          echo '13f86a2d618f0dbe67179d349625345eabf9b46450295cb4c904e49f6aff85af  build/ci-tools/wibo' | sha256sum -c -
+          chmod +x build/ci-tools/wibo
+          curl --fail --location --retry 3 https://github.com/decompme/compilers/releases/download/compilers/mwccarm.zip -o build/ci-tools/mwccarm.zip
+          unzip -q build/ci-tools/mwccarm.zip -d build/ci-tools
+          cp build/ci-tools/mwccarm/license.dat build/ci-tools/mwccarm/1.2/sp3/license.dat
+          if test -f build/ci-tools/mwccarm/1.2/sp3/lmgr8c.dll; then
+            cp build/ci-tools/mwccarm/1.2/sp3/lmgr8c.dll build/ci-tools/mwccarm/1.2/sp3/LMGR8C.dll
+          fi
+          sha256sum build/ci-tools/mwccarm/1.2/sp3/mwccarm.exe > build/ci-objects/compiler.sha256
+      - name: Compile A2DE translation units
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import concurrent.futures, hashlib, json, os, pathlib, subprocess, sys
+          root = pathlib.Path.cwd()
+          output = root / 'build/ci-objects'
+          compiler = root / 'build/ci-tools/mwccarm/1.2/sp3/mwccarm.exe'
+          wibo = root / 'build/ci-tools/wibo'
+          flags = ['-O4,p', '-interworking', '-proc=arm946e', '-lang=C++',
+                   '-Cpp_exceptions=off', '-w=off', '-gccinc', '-nolink', '-c',
+                   '-sym=on', '-RTTI=off', '-once', '-i', 'lib/Nitro/', '-d', 'VER_A2DE']
+          sources = sorted(pathlib.Path('src').rglob('*.cpp'))
+          def compile_one(source):
+              dest = output / source.with_suffix('.o')
+              dest.parent.mkdir(parents=True, exist_ok=True)
+              command = [str(wibo), str(compiler), str(root / source), '-o', str(dest), *flags]
+              try:
+                  p = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=90)
+                  log = p.stdout.decode('utf-8', errors='replace')
+                  status = p.returncode
+              except subprocess.TimeoutExpired:
+                  status, log = 124, 'Compiler timed out after 90 seconds'
+              if log or status:
+                  dest.with_suffix('.log').write_text(log)
+              return {'source': str(source), 'object': str(dest.relative_to(root)),
+                      'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+                      'exit_code': status}
+          with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+              results = list(pool.map(compile_one, sources))
+          failed = [r for r in results if r['exit_code']]
+          report = {'commit': os.environ['GITHUB_SHA'], 'release': 'A2DE',
+                    'compiler': 'mwccarm 1.2/sp3', 'flags': flags,
+                    'compiled': len(results) - len(failed), 'failed': len(failed),
+                    'matching_verified': False, 'units': results}
+          (output / 'compile-report.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps({k: v for k, v in report.items() if k != 'units'}, indent=2))
+          for result in failed:
+              print('FAILED:', result['source'])
+              print((output / pathlib.Path(result['source']).with_suffix('.log')).read_text())
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
+              f.write(f"## A2DE source compilation\n{report['compiled']} compiled; {report['failed']} failed.\n\n")
+              f.write('This job does not use or publish a ROM. Successful compilation is **not** a matching-progress measurement.\n')
+          sys.exit(bool(failed))
+          PY
+      - name: Package public source snapshot
+        if: always()
+        run: git archive --format=tar.gz HEAD -o build/ci-objects/source-snapshot.tar.gz
+      - name: Upload compiled objects and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: A2DE-source-objects
+          path: build/ci-objects/
+          if-no-files-found: error
+          retention-days: 7
