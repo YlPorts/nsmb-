@@ -1,3 +1,25 @@
+# New Super Mario Bros. — YlPorts decompilation
+
+<!-- A2DE_PROGRESS_START -->
+<p align="center">
+  <a href="progress/A2DE.md"><img src="progress/A2DE.svg" width="720" alt="A2DE matching code: 4.032326%" /></a>
+</p>
+
+## **4.032326% matching code — this fork**
+
+| Verified A2DE metric | Current result |
+| --- | ---: |
+| Matching code bytes | **115,988 / 2,876,454** |
+| Matching functions | **1,418 / 15,667** |
+
+Measured **2026-09-19**. The percentage is based on code bytes, not function count, playable levels or a PC/Android port.
+
+**Latest pass: +195 matching functions / +24,284 code bytes.**
+[Measurement details](progress/A2DE.md) · [Machine-readable totals](progress/summary.json) · [Latest batch](progress/batches/current.json)
+
+This counter tracks **YlPorts/nsmb-**, not the separate upstream decomp.dev counter. Update it from a new local objdiff report with `python3 tools/update_progress.py --report build/report.json --date YYYY-MM-DD`; CI checks that the visible counter and stored totals agree.
+<!-- A2DE_PROGRESS_END -->
+
 > [!CAUTION]
 > This project is currently in early stages and is unable to be compiled into a full rom at this time  
 > If you would like to help develop this project read [contributing.md](contributing.md)
@@ -6,7 +28,7 @@
 
 | No-Intro Name                                                                                                                           | Product Code | Build Date          | Progress    |
 | --------------------------------------------------------------------------------------------------------------------------------------- | ------------ | ------------------- | ----------- |
-| [New Super Mario Bros. (USA, Australia)](https://datomatic.no-intro.org/index.php?page=show_record&s=28&n=0434)                         | A2DE         | 2006-03-29 09:48:19 | <a href="https://decomp.dev/projects/950858906"><img width=53 height=20 src="https://decomp.dev/projects/950858906.svg?mode=shield&version=A2DE&label"></a> |
+| [New Super Mario Bros. (USA, Australia)](https://datomatic.no-intro.org/index.php?page=show_record&s=28&n=0434)                         | A2DE         | 2006-03-29 09:48:19 | [**4.032326% (this fork)**](progress/A2DE.md) |
 | [New Super Mario Bros. (Japan)](https://datomatic.no-intro.org/index.php?page=show_record&s=28&n=0442)                                  | A2DJ         | 2006-04-04 19:07:45 | None        |
 | [New Super Mario Bros. (Japan) (Demo) (Kiosk, A85J)](https://datomatic.no-intro.org/index.php?page=show_record&s=28&n=z054)             | A85J         | 2006-04-07 11:17:21 | None        |
 | [New Super Mario Bros. (USA) (Demo) (Kiosk)](https://datomatic.no-intro.org/index.php?page=show_record&s=28&n=x100)                     | A85E         | 2006-04-07 11:29:13 | None        |

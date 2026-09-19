@@ -1,14 +1,30 @@
 #pragma once
+#include "../ModelAnmEntity.hpp"
+#include "../../Vec.hpp"
+#include "../../Collision/Collider.hpp"
 #include "../StageEntity.hpp"
 #include "../../AAA.hpp"
 
 // MainProfileTable slot 242  |  ov054  |  profile @ 0x02171020
-class Object242 : public StageEntity {
+class Object242 : public ModelAnmEntity {
 public:
+
+	// A2DE allocation/member layout; other methods remain incomplete.
+	u8 _unrecovered_4bc[0x2c];
+	Collider _4e8; /* 0x4E8 */
+	u8 _unrecovered_548[0xc];
+	Vec3_32 _554; /* 0x554 */
+	u8 _unrecovered_564[0x8];
+	Vec2_32 _56c; /* 0x56C */
+	u8 _unrecovered_578[0x4c];
+	Vec2_32 _5c4; /* 0x5C4 */
+	u8 _unrecovered_5d0[0x18];
+
 	static void *create();
 	inline Object242() {};
 	inline ~Object242() {};
 };
+static_assert(sizeof(Object242) == 0x5e8);
 
 extern ActorProfile Object242_Profile;
 

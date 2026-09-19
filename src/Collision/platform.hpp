@@ -3,6 +3,7 @@
 #include "../Vec.hpp"
 
 class StageActor;
+class CollisionMgr;
 class Platform;
 
 class PlatformMgr
@@ -115,3 +116,17 @@ public:
 
 };
 NTR_SIZE_GUARD(RotatingPlatform, 0x70);
+
+// A2DE segment-platform allocation: two endpoint vectors after Platform.
+class SegmentPlatform : public Platform {
+public:
+    SegmentPlatform();
+    virtual inline ~SegmentPlatform() {}
+    virtual void update() override;
+
+    Vec2_32 _58;
+    Vec2_32 _64;
+};
+static_assert(sizeof(Platform) == 0x58);
+static_assert(sizeof(RotatingPlatform) == 0x70);
+static_assert(sizeof(SegmentPlatform) == 0x70);

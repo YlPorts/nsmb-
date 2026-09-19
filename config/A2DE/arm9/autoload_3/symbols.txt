@@ -330,8 +330,8 @@ data_0208ae68 kind:bss addr:0x0208ae68
 data_0208ae6c kind:bss addr:0x0208ae6c
 data_0208ae7c kind:bss addr:0x0208ae7c
 data_0208ae8c kind:bss addr:0x0208ae8c
-data_0208ae90 kind:bss addr:0x0208ae90
-data_0208ae94 kind:bss addr:0x0208ae94
+_ZN8Platform8listHeadE kind:bss addr:0x0208ae90
+_ZN8Platform8listTailE kind:bss addr:0x0208ae94
 data_0208ae98 kind:bss addr:0x0208ae98
 data_0208ae9c kind:bss addr:0x0208ae9c
 data_0208aea4 kind:bss addr:0x0208aea4

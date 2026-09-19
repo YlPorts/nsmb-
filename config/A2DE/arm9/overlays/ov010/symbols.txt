@@ -73,10 +73,10 @@ func_ov010_020ceac8 kind:function(arm,size=0x18) addr:0x020ceac8
 func_ov010_020ceae0 kind:function(arm,size=0x1e8) addr:0x020ceae0
 func_ov010_020cecc8 kind:function(arm,size=0x4) addr:0x020cecc8
 func_ov010_020ceccc kind:function(arm,size=0x4) addr:0x020ceccc
-func_ov010_020cecd0 kind:function(arm,size=0x74) addr:0x020cecd0
-func_ov010_020ced44 kind:function(arm,size=0x7c) addr:0x020ced44
-func_ov010_020cedc0 kind:function(arm,size=0x74) addr:0x020cedc0
-func_ov010_020cee34 kind:function(arm,size=0x38) addr:0x020cee34
+_ZN14ModelAnmEntityD2Ev kind:function(arm,size=0x74) addr:0x020cecd0
+_ZN14ModelAnmEntityD0Ev kind:function(arm,size=0x7c) addr:0x020ced44
+_ZN14ModelAnmEntityD1Ev kind:function(arm,size=0x74) addr:0x020cedc0
+_ZN14ModelAnmEntityC2Ev kind:function(arm,size=0x38) addr:0x020cee34
 func_ov010_020cee6c kind:function(arm,size=0x5c) addr:0x020cee6c
 func_ov010_020ceec8 kind:function(arm,size=0x70) addr:0x020ceec8
 func_ov010_020cef38 kind:function(arm,size=0x98) addr:0x020cef38
@@ -1911,10 +1911,10 @@ data_ov010_02123cc0 kind:data(any) addr:0x02123cc0
 data_ov010_02123d10 kind:data(any) addr:0x02123d10
 Object325_Profile kind:data(any) addr:0x02123d58
 _ZTV9Object325 kind:data(word[22]) addr:0x02123d64
-data_ov010_02123dc4 kind:data(any) addr:0x02123dc4
+_ZTV11ModelEntity kind:data(any) addr:0x02123dbc
 data_ov010_02123dd8 kind:data(any) addr:0x02123dd8 ambiguous
 data_ov010_02123df8 kind:data(any) addr:0x02123df8 ambiguous
-data_ov010_02123ee0 kind:data(any) addr:0x02123ee0
+_ZTV14ModelAnmEntity kind:data(any) addr:0x02123ed8
 data_ov010_02123ff4 kind:data(any) addr:0x02123ff4
 data_ov010_02123ffc kind:data(any) addr:0x02123ffc
 data_ov010_02124004 kind:data(any) addr:0x02124004

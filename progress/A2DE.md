@@ -9,11 +9,52 @@ Measured on 2026-09-19 using the supplied A2DE ROM, dsd 0.12.0, Zig 0.16.0, objd
 | Verified lifecycle methods (e764d7d) | 81,580 | 2,876,454 | 2.836131% | 1,128 / 15,667 |
 | Goomba states and collision helpers (fcff83e) | 83,204 | 2,876,454 | 2.892589% | 1,145 / 15,667 |
 | Object layouts, vectors and sound-test update (262f343) | 87,612 | 2,876,454 | 3.045834% | 1,184 / 15,667 |
-| Collision, movement and minigame lifecycle reconstruction | 91,704 | 2,876,454 | 3.188092% | 1,223 / 15,667 |
+| Collision, movement and minigame lifecycle reconstruction (4d786f3) | 91,704 | 2,876,454 | 3.188092% | 1,223 / 15,667 |
+| Shared model bases, platform lists and 62 object layouts | 115,988 | 2,876,454 | 4.032326% | 1,418 / 15,667 |
 
-**Cumulative gain: 11,248 matching code bytes and 273 matching functions.** The code-size and function-count denominators have not changed. No previously matching function was lost, checking each function's unit, original address, and explicit symbol-rename mapping (including aliases and separate sections).
+**Cumulative gain: 35,532 matching code bytes and 468 matching functions.** The code-size and function-count denominators have not changed. No previously matching function was lost, checking each function's unit, original address, and explicit symbol-rename mapping (including aliases and separate sections).
 
-## Latest verified changes
+## Latest verified changes — large layout/platform pass
+
+**4.032326% matching code**, up from 3.188092% at `4d786f3`. This pass adds **195 matching functions / 24,284 matching code bytes**. All 1,223 previously matching functions remain matching. Code, data and function-count denominators are unchanged.
+
+| Area | New matching functions | New matching code bytes |
+| --- | ---: | ---: |
+| 62 recovered object layouts and shared-base inheritance | 176 | 23,192 |
+| ModelAnmEntity construction/destruction | 4 | 412 |
+| Platform list management, construction and geometry setters | 15 | 680 |
+
+- Reconstruct two shared model-owning bases, named `ModelEntity` and `ModelAnmEntity` here. These are **reconstructed names**, not claims of recovered original class names. Distinguish their members and destructor chains from flat byte padding.
+- Recover 62 object allocations, typed model/animation/vector/platform members, and constructor-array counts/strides. All recovered class sizes have active `static_assert` checks. [Per-class evidence and results](layouts-A2DE-20260919.md) show which factories/destructors match; this is not a claim that 62 complete enemies are implemented.
+- Implement Platform's reset, link and unlink operations, all three base destructor variants, base/rotating/segment constructors, the original no-op hooks, and four rotating-platform geometry setters. Rendering, collision-resolution and platform-specific update overrides still require reconstruction.
+- Recover virtual-table prefix boundaries and preserve every relocation's effective target address when moving a label back to its 8-byte header. New source units are split out of previously generated gaps, without dropping original instructions from the measurement.
+
+### Validation of this pass
+
+All **358 game/library translation units compile**. The complete local objdiff report reproduces 115,988 / 2,876,454 matching code bytes and 1,418 / 15,667 matching functions.
+
+Every one of the **195 new functions additionally passes a stricter local comparison**: equal function size, equal complete ARM instructions after normalizing only relocation-encoded address/displacement bits, and equal relocation offsets, types, symbol names and explicit addends. No relocation references are ignored. The public aggregate hash covers the ordered size, instruction hash and relocation-reference hash of each compiled reconstruction; no original instruction data is embedded.
+
+```sh
+python3 tools/verify_matching_batch.py --object-root build/A2DE --compare-original \
+    --report build/strict-original-verification.json
+```
+
+The public CI reproduces the compiled-function hashes/references; it cannot recalculate whole-game matching without the private ROM. Existing 4,000 synthetic scalar tests still pass. New Platform tests pass **4,000 list operations plus 12 reset cases**, checking all 12 nodes after each operation, including repeated insertion/removal and head/tail/interior removal.
+
+```sh
+python3 tools/test_recovered_leaf.py --object-root build/ci-objects
+python3 tools/test_platform_lists.py --object-root build/ci-objects
+python3 tools/update_progress.py --check
+```
+
+**Data-accounting correction:** matching data decreases from 4,036 to 4,028 bytes. The previous Object325 data range included the first 8 bytes of the neighboring shared-base virtual-table header. Those bytes now belong to their actual table/gap instead. Total data remains 851,344 bytes; no matching code function was lost. This correction is recorded rather than hidden by changing a denominator.
+
+The README's large percentage card and A2DE table row now display **this fork's measured code percentage**, generated from integer totals in `progress/summary.json`. The inherited upstream decomp.dev badge no longer masquerades as this fork's progress. Regenerate from a new local report using `tools/update_progress.py --report build/report.json --date YYYY-MM-DD`; `--check` rejects a stale README/card.
+
+These are ARM9 object-code comparisons and focused synthetic tests, **not a linked-ROM, gameplay-completion, rendering/audio or native-port test**. Many gameplay methods and data sections remain incomplete.
+
+## Previous collision, movement and minigame checkpoint
 
 This checkpoint adds **39 matching functions / 4,092 matching code bytes** over 262f343. The original denominators are unchanged and all 1,184 previously matching functions are retained, using the unit, original address and explicit symbol-rename mapping, including aliased functions and distinct sections.
 
@@ -48,7 +89,7 @@ The preceding lifecycle checkpoint reconstructed 172 known parameterless leaf me
 
 Object104 remains at 420 / 420 code bytes (7 / 7 functions), and Object266 at 264 / 264 code bytes (5 / 5 functions). Their data sections are not fully matching; 100% code does not mean every section is complete.
 
-## Validation and reproducibility
+## Earlier checkpoint validation and reproducibility
 
 Full source compilation and the local progress report both pass:
 
