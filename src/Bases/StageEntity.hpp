@@ -106,9 +106,9 @@ public:
 		CT_StageBeaten		= (1U << 8),
 		CT_Starman			= (1U << 9),
 		CT_Mega				= (1U << 10),
-		CT_SpinDrill		= (1U << 11),
+		CT_SpinDrill			= (1U << 11),
 		CT_Sliding			= (1U << 12),
-		CT_Stomp			= (1U << 13),
+		CT_Stomp				= (1U << 13),
 		CT_GroundPound		= (1U << 14),
 		CT_BlueShell		= (1U << 15),
 		CT_FenceSlam		= (1U << 16),
@@ -162,7 +162,8 @@ public:
 	u8 _3df; /* 0x3DF */
 	u8 _pad16[0x4];
 	u8 _3e4; /* 0x3E4 */
-	u8 _pad8[2];
+	u8 _pad8[1];
+	u8 _3e6; /* 0x3E6 */
 	i8 _3e7; /* 0x3E7 */
 	u8 _3e8; /* 0x3E8 */
 	u8 _3e9; /* 0x3E9 */
