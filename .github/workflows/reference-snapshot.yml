@@ -25,7 +25,7 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = 86e1c14cbaa0cae7dfc554cd63eb36887780e7f5
           mkdir -p /tmp/reference-source
-          git archive --format=tar.gz HEAD src config lib readme.md contributing.md > /tmp/reference-source/ndymario-pr6-source.tar.gz
+          git archive --format=tar.gz HEAD src config lib include readme.md contributing.md license.txt > /tmp/reference-source/ndymario-pr6-source.tar.gz
           printf '%s\n' 'NSMB-Decomp/nsmb PR #6; Ndymario/nsmb at 86e1c14cbaa0cae7dfc554cd63eb36887780e7f5; candidates only, not validated matches.' > /tmp/reference-source/PROVENANCE.txt
       - uses: actions/upload-artifact@v4
         with:
