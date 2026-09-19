@@ -1,0 +1,109 @@
+name: Decompilation workbench
+
+on:
+  push:
+    paths:
+      - '.github/workflows/decomp-workbench.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    if: github.repository == 'YlPorts/nsmb-'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Assemble pinned tools and source (no game data)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/nsmb-workbench/tools /tmp/nsmb-workbench/source
+          git archive HEAD | tar -x -C /tmp/nsmb-workbench/source
+          git rev-parse HEAD > /tmp/nsmb-workbench/SOURCE_COMMIT
+          python3 - <<'PY'
+          import hashlib
+          import io
+          import json
+          import pathlib
+          import tarfile
+          import urllib.request
+          import zipfile
+
+          root = pathlib.Path('/tmp/nsmb-workbench')
+          tools = root / 'tools'
+          provenance = []
+
+          def download(url, expected=None):
+              request = urllib.request.Request(url, headers={'User-Agent': 'nsmb-decomp-workbench'})
+              with urllib.request.urlopen(request, timeout=120) as response:
+                  data = response.read()
+              digest = hashlib.sha256(data).hexdigest()
+              if expected and digest != expected.removeprefix('sha256:'):
+                  raise RuntimeError('SHA-256 mismatch: ' + url)
+              provenance.append({'url': url, 'sha256': digest, 'bytes': len(data)})
+              return data
+
+          binaries = [
+              ('dsd', 'https://github.com/AetiasHax/ds-decomp/releases/download/v0.12.0/dsd-linux-x86_64',
+               '03c129c2385b95a2c9545cafa975b41b5d49f62c7a5268f1452896d37883e217'),
+              ('objdiff-cli', 'https://github.com/encounter/objdiff/releases/download/v3.8.1/objdiff-cli-linux-x86_64',
+               'c8290281e82114bcc1a06ff73061110d3902a177822e750337de2537188e358f'),
+              ('wibo', 'https://github.com/decompals/wibo/releases/download/1.2.0/wibo-x86_64',
+               '13f86a2d618f0dbe67179d349625345eabf9b46450295cb4c904e49f6aff85af'),
+          ]
+          for name, url, digest in binaries:
+              target = tools / name
+              target.write_bytes(download(url, digest))
+              target.chmod(0o755)
+
+          # Use the same compiler binary as decomp.me preset mwcc_20_84.
+          # Do not download or include NitroSDK library sources or game data.
+          metadata = json.loads(download('https://api.github.com/repos/decompme/compilers/releases/tags/compilers'))
+          asset = next(a for a in metadata['assets'] if a['name'] == 'mwccarm.zip')
+          archive = zipfile.ZipFile(io.BytesIO(download(asset['browser_download_url'], asset.get('digest'))))
+          compiler_dir = tools / 'mwccarm' / '1.2' / 'sp3'
+          compiler_dir.mkdir(parents=True)
+          prefix = 'mwccarm/1.2/sp3/'
+          for member in archive.infolist():
+              if member.is_dir():
+                  continue
+              if member.filename.startswith(prefix):
+                  relative = pathlib.PurePosixPath(member.filename[len(prefix):])
+                  if '..' in relative.parts or relative.is_absolute():
+                      raise RuntimeError('Unsafe compiler archive path')
+                  target = compiler_dir.joinpath(*relative.parts)
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  target.write_bytes(archive.read(member))
+              elif member.filename == 'mwccarm/license.dat':
+                  (compiler_dir / 'license.dat').write_bytes(archive.read(member))
+          dll = compiler_dir / 'lmgr8c.dll'
+          if dll.exists():
+              dll.rename(compiler_dir / 'LMGR8C.dll')
+          if not (compiler_dir / 'mwccarm.exe').is_file():
+              raise RuntimeError('Compiler archive does not contain mwccarm 1.2/sp3')
+
+          index = json.loads(download('https://ziglang.org/download/index.json'))
+          zig = index['0.16.0']['x86_64-linux']
+          zig_data = download(zig['tarball'], zig['shasum'])
+          with tarfile.open(fileobj=io.BytesIO(zig_data), mode='r:xz') as archive:
+              archive.extractall(tools, filter='data')
+          zig_dir = next(p for p in tools.glob('zig-*') if p.is_dir() and (p / 'zig').is_file())
+          zig_dir.rename(tools / 'zig')
+          (root / 'toolchain-provenance.json').write_text(json.dumps(provenance, indent=2) + '\n')
+          PY
+          /tmp/nsmb-workbench/tools/dsd --version
+          /tmp/nsmb-workbench/tools/objdiff-cli --version
+          /tmp/nsmb-workbench/tools/zig/zig version
+          /tmp/nsmb-workbench/tools/wibo /tmp/nsmb-workbench/tools/mwccarm/1.2/sp3/mwccarm.exe -version
+          tar -czf /tmp/nsmb-workbench-linux-x86_64.tar.gz -C /tmp nsmb-workbench
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nsmb-workbench-linux-x86_64
+          path: /tmp/nsmb-workbench-linux-x86_64.tar.gz
+          if-no-files-found: error
+          retention-days: 5
