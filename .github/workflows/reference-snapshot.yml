@@ -1,0 +1,35 @@
+name: Reference source snapshot
+
+on:
+  push:
+    paths: ['.github/workflows/reference-snapshot.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    if: github.repository == 'YlPorts/nsmb-'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Ndymario/nsmb
+          ref: 86e1c14cbaa0cae7dfc554cd63eb36887780e7f5
+          persist-credentials: false
+      - name: Archive public source only; do not run candidate code
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = 86e1c14cbaa0cae7dfc554cd63eb36887780e7f5
+          mkdir -p /tmp/reference-source
+          git archive --format=tar.gz HEAD src config lib readme.md contributing.md > /tmp/reference-source/ndymario-pr6-source.tar.gz
+          printf '%s\n' 'NSMB-Decomp/nsmb PR #6; Ndymario/nsmb at 86e1c14cbaa0cae7dfc554cd63eb36887780e7f5; candidates only, not validated matches.' > /tmp/reference-source/PROVENANCE.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pinned-scene-candidates
+          path: /tmp/reference-source/
+          retention-days: 7
+          if-no-files-found: error
