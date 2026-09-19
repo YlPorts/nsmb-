@@ -1,0 +1,37 @@
+name: Offline analysis tools
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/analysis-tools.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Download pinned open-source tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p analysis-tools/python-wheels
+          curl --fail --location --retry 3 https://github.com/AetiasHax/ds-decomp/releases/download/v0.12.0/dsd-linux-x86_64 -o analysis-tools/dsd
+          curl --fail --location --retry 3 https://github.com/encounter/objdiff/releases/download/v3.8.1/objdiff-cli-linux-x86_64 -o analysis-tools/objdiff-cli
+          echo '03c129c2385b95a2c9545cafa975b41b5d49f62c7a5268f1452896d37883e217  analysis-tools/dsd' | sha256sum -c -
+          echo 'c8290281e82114bcc1a06ff73061110d3902a177822e750337de2537188e358f  analysis-tools/objdiff-cli' | sha256sum -c -
+          chmod +x analysis-tools/dsd analysis-tools/objdiff-cli
+          python3 -m pip download --only-binary=:all: --no-deps --dest analysis-tools/python-wheels capstone==5.0.6 pyelftools==0.32 ndspy==4.2.0 unicorn==2.1.4
+          (cd analysis-tools && sha256sum dsd objdiff-cli python-wheels/* > SHA256SUMS)
+          analysis-tools/dsd --version
+          analysis-tools/objdiff-cli --version
+          tar -czf analysis-tools.tar.gz analysis-tools
+      - uses: actions/upload-artifact@v4
+        with:
+          name: offline-analysis-tools-linux-x86_64
+          path: analysis-tools.tar.gz
+          if-no-files-found: error
+          retention-days: 7
