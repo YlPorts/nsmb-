@@ -1,25 +1,19 @@
 {
   "schema_version": 2,
   "release": "A2DE",
-  "baseline_revision": "296e67f2f2328664a5b9a0120014dca25e582713",
-  "verified_function_count": 12,
-  "verified_code_bytes": 720,
+  "baseline_revision": "f42a292728c3de3a67aa1a0297f76e0ab3b22fa1",
+  "verified_function_count": 41,
+  "verified_code_bytes": 2080,
   "function_manifest": "current.functions.json.gz",
-  "function_manifest_sha256": "442eba9d59c901e8429ae8f4d7429cc31a69b321840f763a1bec54cf9fc1f750",
-  "compiled_functions_sha256": "f3ecf49460ffeb98bd9b89f26c8fa51bd5234421a6a108dedcdfdef3e01d8651",
-  "matching_code_bytes": 124536,
+  "function_manifest_sha256": "a63b7f9c9ac6e86ebb645e804e14f0593cb6df888786d734736a6746dd0ccca2",
+  "compiled_functions_sha256": "0f881eda6110d5bbb341158af8f8f49b7bd56e30f6650d65a1c4880478fd70c8",
+  "matching_code_bytes": 126616,
   "total_code_bytes": 2876454,
-  "matching_functions": 1465,
+  "matching_functions": 1506,
   "total_functions": 15667,
   "matching_functions_lost": 0,
-  "local_report_sha256": "2f889c493b8b692a3940ffa8cb68d5a861cae9d6584428ef1d765be3da762120",
-  "validation_scope": "All 12 functions have locally verified equal ARM instruction bytes after relocation normalization and equal function sizes. Object258::create also has exact relocation offsets/types/names/addends. The other 11 allocation-only factories retain equivalent provisional constructor/vtable relocation labels; public CI verifies source reproducibility, not ROM-free whole-game matching.",
-  "commit_message": "decomp: recover 12 allocation/layout matches (A2DE 4.329497%)\n\nRecover Object258's grouped 0x4A0 member layout and original allocation\nsizes for Object76, Object249, Object341, Object342, Object343, Object344,\nObject348, Object350, Object354, Object367 and Object368.\n\nAdd 720 matching code bytes and 12 matching functions over 296e67f.\nTotals: 124,536 / 2,876,454 code bytes and 1,465 / 15,667 functions.\nMatching data remains 4,276 / 851,344 and no previous match is lost.\n\nObject258::create is an exact instruction-and-relocation match. The other\n11 factories reproduce the complete ARM instruction stream and size; their\nremaining objdiff fuzziness is equivalent provisional constructor/vtable\nrelocation labels documented in the layout report.\n\nNo ROM or extracted original game binaries are published.",
-  "patch_sha256": "cf21bc035390e73d7101b096d44a270baa21cd13fe9977e877d5cd8db2609c40",
-  "patch_parts": [
-    "current.patch.part-00",
-    "current.patch.part-01",
-    "current.patch.part-02",
-    "current.patch.part-03"
-  ]
+  "local_report_sha256": "01a05107e5253346aa4a6d05f90f4468c36671038fb465edd31fb2d83edab2df",
+  "validation_scope": "All 41 newly matching src/worldmap/scene functions are locally verified against A2DE with equal function sizes, complete relocation-normalized ARM instructions, and equal explicit RELA offsets/types/symbol names/addends. Public CI recompiles the same source and reproduces the aggregate fingerprint; no ROM or extracted original game binaries are published.",
+  "commit_message": "decomp: recover 41 worldmap scene helpers (A2DE 4.401809%)\n\nRecover 41 exact functions in src/worldmap/scene, including world/path/node\nqueries, completion and star-coin accounting helpers, input sequence support,\nworld transition helpers, and five WorldmapScene options-menu dispatch methods.\nCanonicalize WM::worlds and Game::getPlayerPowerup symbols plus the affected\nrelocation addends so strict ARM/reference verification uses the recovered names.\n\nAdd 2,080 matching code bytes and 41 matching functions over f42a292.\nTotals: 126,616 / 2,876,454 code bytes and 1,506 / 15,667 functions.\nMatching data remains 4,276 / 851,344 and no previous match is lost.\nThe worldmap scene unit now has 2,080 / 15,256 matching code bytes and\n41 / 69 matching functions. Fuzzy-only candidates were excluded.\n\nAll 41 functions pass local full ARM instruction and explicit relocation\noffset/type/name/addend comparison against A2DE. Public CI recompiles the\nsame sources and reproduces the batch fingerprint before publishing.\nNo ROM or extracted original game binaries are included.",
+  "patch_sha256": "d973787ed67c7a01f3e466b9149ade94f76492dab7b68037c59178277f45ff9e"
 }
