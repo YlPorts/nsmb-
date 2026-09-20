@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="230" viewBox="0 0 720 230" role="img" aria-labelledby="title description">
-  <title id="title">A2DE matching code: 4.329497%</title>
-  <desc id="description">124,536 of 2,876,454 code bytes; 1,465 of 15,667 functions. Measured 2026-09-19. This is not a playable-game completion percentage.</desc>
+  <title id="title">A2DE matching code: 4.401809%</title>
+  <desc id="description">126,616 of 2,876,454 code bytes; 1,506 of 15,667 functions. Measured 2026-09-19. This is not a playable-game completion percentage.</desc>
   <rect width="720" height="230" rx="18" fill="#111827"/>
   <g font-family="Arial, Helvetica, sans-serif">
     <text x="48" y="43" fill="#cbd5e1" font-size="15" font-weight="700" letter-spacing="1.5">YLPORTS / NSMB — A2DE MATCHING CODE</text>
-    <text x="48" y="116" fill="#34d399" font-size="62" font-weight="700">4.329497%</text>
-    <text x="49" y="150" fill="#f8fafc" font-size="17">124,536 / 2,876,454 code bytes</text>
+    <text x="48" y="116" fill="#34d399" font-size="62" font-weight="700">4.401809%</text>
+    <text x="49" y="150" fill="#f8fafc" font-size="17">126,616 / 2,876,454 code bytes</text>
     <rect x="48" y="173" width="624" height="10" rx="5" fill="#334155"/>
-    <rect x="48" y="173" width="27.0161" height="10" rx="5" fill="#34d399"/>
-    <text x="48" y="210" fill="#cbd5e1" font-size="13">1,465 matching functions · Measured 2026-09-19 · Source reconstruction, not a port</text>
+    <rect x="48" y="173" width="27.4673" height="10" rx="5" fill="#34d399"/>
+    <text x="48" y="210" fill="#cbd5e1" font-size="13">1,506 matching functions · Measured 2026-09-19 · Source reconstruction, not a port</text>
   </g>
 </svg>

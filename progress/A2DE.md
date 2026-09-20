@@ -14,10 +14,39 @@ Measured on 2026-09-19 using the supplied A2DE ROM, dsd 0.12.0, Zig 0.16.0, objd
 | Worldmap character/player-model completion | 121,032 | 2,876,454 | 4.207681% | 1,441 / 15,667 |
 | Worldmap camera code completion | 123,816 | 2,876,454 | 4.304467% | 1,453 / 15,667 |
 | Object258 grouped layout and 11 recovered allocation sizes | 124,536 | 2,876,454 | 4.329497% | 1,465 / 15,667 |
+| WorldmapScene helper, input and menu recovery | 126,616 | 2,876,454 | 4.401809% | 1,506 / 15,667 |
 
-**Cumulative gain: 44,080 matching code bytes and 515 matching functions.** The code-size and function-count denominators have not changed. No previously matching function was lost, checking each function's unit and original address.
+**Cumulative gain: 46,160 matching code bytes and 556 matching functions.** The code-size and function-count denominators have not changed. No previously matching function was lost, checking each function's unit and original address.
 
-## Latest verified changes — allocation/layout pass
+## Latest verified changes — WorldmapScene helper pass
+
+**4.401809% matching code**, up from 4.329497% at `f42a292`. This pass adds **41 matching functions / 2,080 matching code bytes**. The new total is **126,616 / 2,876,454 code bytes** and **1,506 / 15,667 functions**. Matching data remains **4,276 / 851,344 bytes**.
+
+| Area | New matching functions | New matching code bytes |
+| --- | ---: | ---: |
+| `src/worldmap/scene` query/completion/input/menu helpers | 41 | 2,080 |
+
+- Recover world/path/node query helpers, completion counters, star-coin/path accounting support, world transition helpers, input checks, and five `WorldmapScene` menu dispatch methods.
+- Recover the original member-function symbol names for the five menu methods so their ARM bodies and relocation targets compare under the correct C++ names.
+- `src/worldmap/scene` now reports **2,080 / 15,256 matching code bytes and 41 / 69 matching functions**. Functions that remained only fuzzy were excluded from this batch.
+
+### Validation of this pass
+
+The complete local objdiff report reproduces **126,616 / 2,876,454 matching code bytes**, **1,506 / 15,667 matching functions**, and **4,276 / 851,344 matching data bytes**. The project-wide delta from `f42a292` is exactly **+2,080 bytes / +41 functions**, with no previously matching function or code byte lost.
+
+Every function listed in the batch manifest is compared against the supplied A2DE reference using complete ARM instruction bytes after relocation normalization plus explicit RELA offset/type/symbol/addend checks. Public CI recompiles the same sources and reproduces the aggregate fingerprint without publishing ROM or extracted original binaries.
+
+```sh
+zig build delink -DRelease=A2DE
+zig build objdiff -DRelease=A2DE
+zig build all -DRelease=A2DE
+objdiff-cli report generate -o build/report.json
+python3 tools/verify_matching_batch.py --object-root build/A2DE --compare-original
+```
+
+These are ARM9 object-code comparisons against the supplied A2DE reference, **not a linked-ROM/gameplay-completion or native-port test**.
+
+## Previous verified changes — allocation/layout pass
 
 **4.329497% matching code**, up from 4.304467% at `296e67f`. This pass adds **12 matching functions / 720 matching code bytes**. The new total is **124,536 / 2,876,454 code bytes** and **1,465 / 15,667 functions**. Matching data remains **4,276 / 851,344 bytes**.
 

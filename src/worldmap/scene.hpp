@@ -207,6 +207,12 @@ namespace WM {
 class WorldmapScene : public Scene {
 public:
 
+	void func_ov008_020d06b0();
+	void func_ov008_020d06bc();
+	void func_ov008_020d06c8();
+	void func_ov008_020d06fc();
+	void func_ov008_020d0708();
+	void func_ov008_020d0a4c();
 
 
 };
