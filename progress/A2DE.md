@@ -15,10 +15,45 @@ Measured on 2026-09-19 using the supplied A2DE ROM, dsd 0.12.0, Zig 0.16.0, objd
 | Worldmap camera code completion | 123,816 | 2,876,454 | 4.304467% | 1,453 / 15,667 |
 | Object258 grouped layout and 11 recovered allocation sizes | 124,536 | 2,876,454 | 4.329497% | 1,465 / 15,667 |
 | WorldmapScene helper, input and menu recovery | 126,616 | 2,876,454 | 4.401809% | 1,506 / 15,667 |
+| WorldmapScene dialog/cleanup/completion follow-up | 127,232 | 2,876,454 | 4.423224% | 1,514 / 15,667 |
 
-**Cumulative gain: 46,160 matching code bytes and 556 matching functions.** The code-size and function-count denominators have not changed. No previously matching function was lost, checking each function's unit and original address.
+**Cumulative gain: 46,776 matching code bytes and 564 matching functions.** The code-size and function-count denominators have not changed. No previously matching function was lost, checking each function's unit and original address.
 
-## Latest verified changes — WorldmapScene helper pass
+## Latest verified changes — WorldmapScene follow-up helpers
+
+**4.423224% matching code**, up from 4.401809% at `9eaa599`. This pass adds **8 matching functions / 616 matching code bytes**. The new total is **127,232 / 2,876,454 code bytes** and **1,514 / 15,667 functions**. Matching data remains **4,276 / 851,344 bytes**.
+
+| Area | New matching functions | New matching code bytes |
+| --- | ---: | ---: |
+| Dialog render/dispatch helpers (`020cdb70`, `020cdbd0`) | 2 | 192 |
+| Dialog-state setup (`020ce5ec`) | 1 | 136 |
+| Scene post-update/cache cleanup (`020cf12c`, `020cf790`, `020cf794`) | 3 | 104 |
+| Completion/input-state helpers (`020d04fc`, `020d1478`) | 2 | 184 |
+| **Total** | **8** | **616** |
+
+- Recover two text-box/dialog wrappers while retaining the existing external symbol for the still-unrecovered `020cdc30` implementation.
+- Recover the dialog-state initializer plus scene post-update/cache cleanup hooks and two completion/input-state helpers.
+- Correct the inferred width of `data_ov008_020ee414` to `u32`, which restores the original ARM code generation for `020d1478`.
+- Keep fuzzy-only candidates out of the count: `020cdcf8`, `020cdf9c`, `020cdc30`, `020ce0a0` and `020ced20` remain incomplete.
+- `src/worldmap/scene` now reports **2,696 / 15,256 matching code bytes and 49 / 69 matching functions**.
+
+### Validation of this pass
+
+The complete local objdiff report reproduces **127,232 / 2,876,454 matching code bytes**, **1,514 / 15,667 matching functions**, and **4,276 / 851,344 matching data bytes**. The project-wide delta from `9eaa599` is exactly **+616 bytes / +8 functions**, with no previously matching function or code byte lost.
+
+All eight functions pass a strict local check of equal function size, complete relocation-normalized ARM instructions, and explicit relocation offset/type/symbol/addend equality. The isolated objdiff percentage for `020cdbd0` is affected by an internal symbol-index representation; its resolved relocation target/type/addend and instructions match exactly, and the project-wide report counts the function as 100% matching.
+
+```sh
+zig build delink -DRelease=A2DE
+zig build objdiff -DRelease=A2DE
+zig build all -DRelease=A2DE
+objdiff-cli report generate -o build/report.json
+python3 tools/verify_matching_batch.py --object-root build/A2DE --compare-original
+```
+
+These are ARM9 object-code comparisons against the supplied A2DE reference, **not a linked-ROM/gameplay-completion or native-port test**. No ROM or extracted original game binaries are published.
+
+## Previous verified changes — WorldmapScene helper pass
 
 **4.401809% matching code**, up from 4.329497% at `f42a292`. This pass adds **41 matching functions / 2,080 matching code bytes**. The new total is **126,616 / 2,876,454 code bytes** and **1,506 / 15,667 functions**. Matching data remains **4,276 / 851,344 bytes**.
 

@@ -3,6 +3,8 @@
 #include "../Vec.hpp"
 #include "../menu/OptionsMenu.hpp"
 #include "playermodel.hpp"
+#include "../objectid.hpp"
+#include "../system/vblank.hpp"
 
 
 extern "C" u8 func_ov008_020cda24(u32 world, u32 path, u8 mask)
@@ -65,6 +67,23 @@ extern u32 data_ov008_020e8794[][16];
 extern u8 data_ov008_020e5cc8[];
 extern u8 data_ov008_020ee380;
 }
+
+struct WmTextBoxOpaque {};
+struct WmTextBoxMessagePrefix { u8 padding000[0x14e]; u8 unk14E; };
+extern "C" WmTextBoxOpaque data_ov008_020ee58c;
+extern "C" u8 data_ov008_020ee374;
+extern "C" int data_ov008_020e64ec[][2];
+extern "C" u32 data_ov008_020ee3f4;
+extern "C" void func_020144bc(WmTextBoxOpaque*, int, int, int);
+extern "C" void func_020145f8(WmTextBoxOpaque*, int, int);
+extern "C" WmTextBoxMessagePrefix* func_ov008_020cdc30(int, int, int);
+
+extern "C" u8 data_ov008_020ee378;
+extern "C" u8 data_ov008_020ee37c;
+extern "C" u8 data_ov008_020ee398;
+extern "C" u32 data_ov008_020ee3d0;
+extern "C" s32 data_ov008_020ee3e0;
+extern "C" u32 data_ov008_020ee3f0;
 
 extern "C" void func_ov008_020cdb44(u32 sceneID, u32 settings)
 {
@@ -177,6 +196,16 @@ extern "C" void func_ov008_020d0614(u32* value)
     *value = 0;
 }
 
+extern "C" u32 func_ov008_020d0548(u32* value);
+
+extern "C" u32 func_ov008_020d04fc(WorldmapScene*)
+{
+    if (!(save.game.completion & (1 << 5))) {
+        return 0;
+    }
+    return func_ov008_020d0548(&data_ov008_020ee3d4);
+}
+
 extern "C" void func_ov008_020d0534()
 {
     func_ov008_020d0614(&data_ov008_020ee3d4);
@@ -195,6 +224,34 @@ extern "C" u32 func_ov008_020d0644()
 extern "C" u32 func_ov008_020d0668()
 {
     return Input::consoleKeys[Input::localConsoleID][0] & 0x400;
+}
+
+extern "C" void func_ov008_020cdb70(int mode, int arrowValue)
+{
+    switch (mode) {
+    case 1:
+    case 2:
+        func_020144bc(&data_ov008_020ee58c, arrowValue, 0, 0);
+        break;
+    case 3:
+        func_02014824(0, 0);
+        break;
+    }
+    func_020145f8(&data_ov008_020ee58c, 0, 0);
+}
+
+extern "C" void func_ov008_020cdbd0()
+{
+    u8 dialogBox = data_ov008_020ee374;
+    int boxID = data_ov008_020e64ec[dialogBox][data_ov008_020ee380];
+    int dialogFlag = 0;
+    if (dialogBox != 0) {
+        dialogFlag = 1;
+    }
+    WmTextBoxMessagePrefix* message = func_ov008_020cdc30(boxID, dialogFlag, data_ov008_020ee3f4);
+    if (message != 0) {
+        message->unk14E = 0xb;
+    }
 }
 
 extern "C" u32 func_ov008_020d068c()
@@ -308,6 +365,19 @@ extern "C" u32 func_ov008_020cdec0()
         save.game.completion |= 1 << 4;
     }
     return spent;
+}
+
+extern "C" void func_ov008_020ce5ec()
+{
+    u32 value = data_ov008_020ee3f4;
+    data_ov008_020ee3f0 = 3;
+    data_ov008_020ee398 = 2;
+    data_ov008_020ee3e0 = 0;
+    data_ov008_020ee378 = 1;
+    data_ov008_020ee37c = 1;
+    data_ov008_020ee3d0 = 0;
+    func_ov008_020cdc30(7, 1, value);
+    func_02012398(0xe6, 0);
 }
 
 struct WmInputSequenceEntryLocal {
@@ -453,4 +523,56 @@ extern "C" void func_ov008_020ce22c()
         world = func_ov008_020ce298(world);
     }
     func_ov008_020cdb44(9, world | 0x3000);
+}
+
+extern "C" void func_ov008_020cf790() {}
+
+extern "C" bool func_ov008_020cf794()
+{
+    FS::Cache::clear();
+    if (data_0203bd30 != SC_Worldmap) {
+        func_02011d40();
+    }
+    System::resetSubBGVBlank();
+    return true;
+}
+
+extern "C" u8 data_ov008_020ee49c[];
+extern "C" void func_ov008_020d12ac(void*);
+extern "C" void func_ov008_020cf12c(WorldmapScene* scene, u32 state)
+{
+    func_ov008_020d12ac(&data_ov008_020ee49c);
+    scene->Scene::postUpdate(state);
+}
+
+struct Unk020d1478ConfigLocal {
+    s32 value00;
+    s32 value04;
+    s32 value08;
+    s32 value0C;
+    s32 padding10;
+    u32 mode;
+};
+extern "C" s8 data_ov008_020e5a2c;
+extern "C" u32 data_ov008_020ee414;
+extern "C" void func_ov008_020d1478(Unk020d1478ConfigLocal* config, u32 mode)
+{
+    config->value04 = 0x333;
+    config->value00 = 0x1000;
+    config->value08 = 0;
+    config->value0C = 0x1e;
+    config->mode = mode;
+    switch (config->mode) {
+    case 2:
+        config->value0C = 0x32;
+        data_ov008_020e5a2c = save.game.currentWorld;
+        return;
+    case 0:
+        data_ov008_020ee414 = 0;
+        return;
+    default:
+        config->value04 = 0x333;
+        config->value08 = 0x8000;
+        return;
+    }
 }
